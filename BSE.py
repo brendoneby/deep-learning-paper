@@ -376,6 +376,7 @@ class Trader:
         self.profitpertime = 0  # profit per unit time
         self.n_trades = 0  # how many trades has this trader done?
         self.lastquote = None  # record of what its last quote was
+        self.snapshots = []     #Snapshots recorded (if recording)
 
     def __str__(self):
         return '[TID %s type %s balance %s blotter %s orders %s n_trades %s profitpertime %s]' \
@@ -581,6 +582,7 @@ class Trader_ZIP(Trader):
         self.prev_best_bid_q = None
         self.prev_best_ask_p = None
         self.prev_best_ask_q = None
+
         self.recordSnapshots = recordSnapshots
 
     def getorder(self, time, countdown, lob):
@@ -606,7 +608,8 @@ class Trader_ZIP(Trader):
         return order
 
     def doOnBookkeep(self):
-        if(self.recordSnapshots): getSnapshot(self.lastLOB, self.lastquote)
+        if(self.recordSnapshots):
+            self.snapshots.append(getSnapshot(self.lastLOB, self.lastquote))
 
     # update margin on basis of what happened in market
     def respond(self, time, lob, trade, verbose):
@@ -1010,7 +1013,8 @@ class Trader_AA(Trader):
                 return order
 
         def doOnBookkeep(self):
-            if(self.recordSnapshots): getSnapshot(self.lastLOB, self.lastquote)
+            if(self.recordSnapshots):
+                self.snapshots.append(getSnapshot(self.lastLOB, self.lastquote))
 
         def respond(self, time, lob, trade, verbose):
             ## Begin nicked from ZIP
@@ -1763,6 +1767,13 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
             for b in traders[t].blotter:
                 bdump.write('%s, Blotteritem, %s\n' % (traders[t].tid, b))
         bdump.close()
+
+        # record the snapshot for each trader
+        sdump = open('snapshots.csv', 'w' if sess_id == 1 else 'a')
+        for t in traders:
+            for s in traders[t].snapshots:
+                bdump.write('%s, %s\n' % (sess_id, ",".join(s)))
+        sdump.close()
 
 
     # write trade_stats for this session (NB end-of-session summary only)

@@ -14,4 +14,5 @@ def generate_data():
     run_sessions(trader_spec, trader_spec, n_trials)
 
 def run_experiment():
+    #TODO: build
     pass
