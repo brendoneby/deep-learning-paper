@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from helper_functions import *
 
 class DeepTrader_Model():
     def __init__(self):

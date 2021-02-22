@@ -16,3 +16,5 @@ def generate_data():
 def run_experiment():
     #TODO: build
     pass
+
+generate_data()
