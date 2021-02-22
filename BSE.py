@@ -1771,8 +1771,9 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
         # record the snapshot for each trader
         sdump = open('snapshots.csv', 'w' if sess_id == 1 else 'a')
         for t in traders:
-            for s in traders[t].snapshots:
-                bdump.write('%s, %s\n' % (sess_id, ",".join(s)))
+            if(hasattr(traders[t], 'snapshots')):
+                for s in traders[t].snapshots:
+                    bdump.write('%s, %s\n' % (sess_id, ",".join(s)))
         sdump.close()
 
 
