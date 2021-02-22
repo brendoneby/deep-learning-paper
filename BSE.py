@@ -49,6 +49,8 @@
 import sys
 import math
 import random
+from helper_functions import *
+from DeepTrader import loadDeepTrader_Model
 # import Trader_AA
 
 bse_sys_minprice = 1  # minimum price in the system, in cents/pennies
@@ -423,6 +425,7 @@ class Trader:
 
         if verbose: print('%s profit=%d balance=%d profit/time=%d' % (outstr, profit, self.balance, self.profitpertime))
         self.del_order(order)  # delete the order
+        self.doOnBookkeep()
 
     # specify how trader responds to events in the market
     # this is a null action, expect it to be overloaded by specific algos
@@ -432,6 +435,11 @@ class Trader:
     # specify how trader mutates its parameter values
     # this is a null action, expect it to be overloaded by specific algos
     def mutate(self, time, lob, trade, verbose):
+        return None
+
+    # optional method for doing something when bookkeeping actions take place
+    # this is a null action, expect it to be overloaded by specific algos
+    def doOnBookkeep(self):
         return None
 
 
@@ -552,7 +560,7 @@ class Trader_ZIP(Trader):
     #    so a single trader can both buy AND sell
     #    -- in the original, traders were either buyers OR sellers
 
-    def __init__(self, ttype, tid, balance, time):
+    def __init__(self, ttype, tid, balance, time, recordSnapshots = False):
         Trader.__init__(self, ttype, tid, balance, time)
         self.willing = 1
         self.able = 1
@@ -573,6 +581,7 @@ class Trader_ZIP(Trader):
         self.prev_best_bid_q = None
         self.prev_best_ask_p = None
         self.prev_best_ask_q = None
+        self.recordSnapshots = recordSnapshots
 
     def getorder(self, time, countdown, lob):
         if len(self.orders) < 1:
@@ -593,7 +602,11 @@ class Trader_ZIP(Trader):
 
             order = Order(self.tid, self.job, quoteprice, self.orders[0].qty, time, lob['QID'])
             self.lastquote = order
+            if(self.recordSnapshots): self.quoteLOB = lob
         return order
+
+    def doOnBookkeep(self):
+        if(self.recordSnapshots): getSnapshot(self.lastLOB, self.lastquote)
 
     # update margin on basis of what happened in market
     def respond(self, time, lob, trade, verbose):
@@ -751,7 +764,7 @@ class Trader_ZIP(Trader):
 # Trader subclass AA
 class Trader_AA(Trader):
 
-        def __init__(self, ttype, tid, balance, time):
+        def __init__(self, ttype, tid, balance, time, recordSnapshots = False):
                 # Stuff about trader
                 self.ttype = ttype
                 self.tid = tid
@@ -763,6 +776,7 @@ class Trader_AA(Trader):
                 self.orders = []
                 self.n_quotes = 0
                 self.lastquote = None
+                self.recordSnapshots = recordSnapshots
 
                 self.limit = None
                 self.job = None
@@ -938,7 +952,7 @@ class Trader_AA(Trader):
                                         self.buy_target = l + (p-l)*(1-plus_thing)
                                 else:
                                         self.buy_target = p + (self.marketMax - p)*(bar_thing)
-                        if self.sell_target < l:
+                        if self.sell_target is None or self.sell_target < l:
                                 self.sell_target = l
 
         def getorder(self, time, countdown, lob):
@@ -992,7 +1006,11 @@ class Trader_AA(Trader):
                                     self.orders[0].qty,
                                     time, lob['QID'])
                         self.lastquote=order
+                        if(self.recordSnapshots): self.quoteLOB = lob
                 return order
+
+        def doOnBookkeep(self):
+            if(self.recordSnapshots): getSnapshot(self.lastLOB, self.lastquote)
 
         def respond(self, time, lob, trade, verbose):
             ## Begin nicked from ZIP
@@ -1005,7 +1023,7 @@ class Trader_AA(Trader):
             if lob_best_bid_p != None:
                     # non-empty bid LOB
                     lob_best_bid_q = lob['bids']['lob'][-1][1]
-                    if self.prev_best_bid_p < lob_best_bid_p :
+                    if self.prev_best_bid_p is None or self.prev_best_bid_p < lob_best_bid_p :
                             # best bid has improved
                             # NB doesn't check if the improvement was by self
                             bid_improved = True
@@ -1028,7 +1046,7 @@ class Trader_AA(Trader):
             if lob_best_ask_p != None:
                     # non-empty ask LOB
                     lob_best_ask_q = lob['asks']['lob'][0][1]
-                    if self.prev_best_ask_p > lob_best_ask_p :
+                    if self.prev_best_ask_p is None or self.prev_best_ask_p > lob_best_ask_p :
                             # best ask has improved -- NB doesn't check if the improvement was by self
                             ask_improved = True
                     elif trade != None and ((self.prev_best_ask_p < lob_best_ask_p) or ((self.prev_best_ask_p == lob_best_ask_p) and (self.prev_best_ask_q > lob_best_ask_q))):
@@ -1236,7 +1254,7 @@ class Trader_GDX(Trader):
                 if lob_best_bid_p != None:
                         # non-empty bid LOB
                         lob_best_bid_q = lob['bids']['lob'][-1][1]
-                        if self.prev_best_bid_p < lob_best_bid_p :
+                        if self.prev_best_bid_p is None or self.prev_best_bid_p < lob_best_bid_p :
                                 # best bid has improved
                                 # NB doesn't check if the improvement was by self
                                 bid_improved = True
@@ -1261,7 +1279,7 @@ class Trader_GDX(Trader):
                 if lob_best_ask_p != None:
                         # non-empty ask LOB
                         lob_best_ask_q = lob['asks']['lob'][0][1]
-                        if self.prev_best_ask_p > lob_best_ask_p :
+                        if self.prev_best_ask_p is None or self.prev_best_ask_p > lob_best_ask_p :
                                 # best ask has improved -- NB doesn't check if the improvement was by self
                                 ask_improved = True
                         elif trade != None and ((self.prev_best_ask_p < lob_best_ask_p) or ((self.prev_best_ask_p == lob_best_ask_p) and (self.prev_best_ask_q > lob_best_ask_q))):
@@ -1302,6 +1320,20 @@ class Trader_GDX(Trader):
                 self.prev_best_ask_p = lob_best_ask_p
                 self.prev_best_ask_q = lob_best_ask_q
 
+class Trader_Deep(Trader):
+
+    def __init__(self, ttype, tid, balance, time):
+        Trader.__init__(self, ttype, tid, balance, time)
+        self.model = loadDeepTrader_Model()
+
+    def getorder(self, time, countdown, lob):
+        snapshot = getSnapshot(lob)
+        snapshot = normalize(snapshot, self.orders[0])
+        price = self.model(snapshot.float())
+
+        order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
+        self.lastquote = order
+        return order
 
 
 #########################---trader-types have all been defined now--################
@@ -1382,6 +1414,8 @@ def populate_market(traders_spec, traders, shuffle, verbose):
             return Trader_AA('AA', name, 0.00, 0)
         elif robottype == 'GDX':
             return Trader_GDX('GDX', name, 0.00, 0)
+        elif robottype == 'DEEP':
+            return Trader_Deep('DEEP', name, 0.00, 0)
         else:
             sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 
