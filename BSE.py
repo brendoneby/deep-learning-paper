@@ -261,6 +261,9 @@ class Exchange(Orderbook):
     def process_order2(self, time, order, verbose):
         # receive an order and either add it to the relevant LOB (ie treat as limit order)
         # or if it crosses the best counterparty offer, execute it (treat as a market order)
+
+        best = 0 # 1 if trader sells/hits best bid price or if trader lifts/buys at best ask price
+
         oprice = order.price
         counterparty = None
         [qid, response] = self.add_order(order, verbose)  # add it to the order lists -- overwriting any previous order
@@ -275,6 +278,7 @@ class Exchange(Orderbook):
         if order.otype == 'Bid':
             if self.asks.n_orders > 0 and best_bid >= best_ask:
                 # bid lifts the best ask
+                best = 1
                 if verbose:
                     print("Bid $%s lifts best ask" % oprice)
                 counterparty = best_ask_tid
@@ -288,6 +292,7 @@ class Exchange(Orderbook):
         elif order.otype == 'Ask':
             if self.bids.n_orders > 0 and best_ask <= best_bid:
                 # ask hits the best bid
+                best = 1
                 if verbose:
                     print("Ask $%s hits best bid" % oprice)
                 # remove the best bid
@@ -314,7 +319,8 @@ class Exchange(Orderbook):
                                   'price': price,
                                   'party1': counterparty,
                                   'party2': order.tid,
-                                  'qty': order.qty
+                                  'qty': order.qty,
+                                  'best': best
                                   }
             self.tape.append(transaction_record)
             return transaction_record
@@ -426,7 +432,7 @@ class Trader:
 
         if verbose: print('%s profit=%d balance=%d profit/time=%d' % (outstr, profit, self.balance, self.profitpertime))
         self.del_order(order)  # delete the order
-        self.doOnBookkeep()
+        # self.doOnBookkeep(time)
 
     # specify how trader responds to events in the market
     # this is a null action, expect it to be overloaded by specific algos
@@ -440,8 +446,8 @@ class Trader:
 
     # optional method for doing something when bookkeeping actions take place
     # this is a null action, expect it to be overloaded by specific algos
-    def doOnBookkeep(self):
-        return None
+    # def doOnBookkeep(self):
+    #     return None
 
 
 # Trader subclass Giveaway
@@ -561,7 +567,7 @@ class Trader_ZIP(Trader):
     #    so a single trader can both buy AND sell
     #    -- in the original, traders were either buyers OR sellers
 
-    def __init__(self, ttype, tid, balance, time, recordSnapshots = False):
+    def __init__(self, ttype, tid, balance, time):
         Trader.__init__(self, ttype, tid, balance, time)
         self.willing = 1
         self.able = 1
@@ -583,8 +589,6 @@ class Trader_ZIP(Trader):
         self.prev_best_ask_p = None
         self.prev_best_ask_q = None
 
-        self.recordSnapshots = recordSnapshots
-
     def getorder(self, time, countdown, lob):
         if len(self.orders) < 1:
             self.active = False
@@ -604,12 +608,7 @@ class Trader_ZIP(Trader):
 
             order = Order(self.tid, self.job, quoteprice, self.orders[0].qty, time, lob['QID'])
             self.lastquote = order
-            if(self.recordSnapshots): self.quoteLOB = lob
         return order
-
-    def doOnBookkeep(self):
-        if(self.recordSnapshots):
-            self.snapshots.append(getSnapshot(self.lastLOB, self.lastquote))
 
     # update margin on basis of what happened in market
     def respond(self, time, lob, trade, verbose):
@@ -767,7 +766,7 @@ class Trader_ZIP(Trader):
 # Trader subclass AA
 class Trader_AA(Trader):
 
-        def __init__(self, ttype, tid, balance, time, recordSnapshots = False):
+        def __init__(self, ttype, tid, balance, time):
                 # Stuff about trader
                 self.ttype = ttype
                 self.tid = tid
@@ -779,7 +778,6 @@ class Trader_AA(Trader):
                 self.orders = []
                 self.n_quotes = 0
                 self.lastquote = None
-                self.recordSnapshots = recordSnapshots
 
                 self.limit = None
                 self.job = None
@@ -1009,12 +1007,7 @@ class Trader_AA(Trader):
                                     self.orders[0].qty,
                                     time, lob['QID'])
                         self.lastquote=order
-                        if(self.recordSnapshots): self.quoteLOB = lob
                 return order
-
-        def doOnBookkeep(self):
-            if(self.recordSnapshots):
-                self.snapshots.append(getSnapshot(self.lastLOB, self.lastquote))
 
         def respond(self, time, lob, trade, verbose):
             ## Begin nicked from ZIP
@@ -1668,6 +1661,8 @@ def customer_orders(time, last_update, traders, trader_stats, os, pending, verbo
 # one session in the market
 def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdump, dump_all, verbose):
 
+    snapshots= []
+
     orders_verbose = False
     lob_verbose = False
     process_verbose = False
@@ -1696,7 +1691,10 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
 
     if verbose:
         print('\n%s;  ' % sess_id)
-
+    
+    prev_trade_time = 0
+    
+    i = 0
     while time < endtime:
 
         # how much time left, as a percentage?
@@ -1720,7 +1718,8 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
 
         # get a limit-order quote (or None) from a randomly chosen trader
         tid = list(traders.keys())[random.randint(0, len(traders) - 1)]
-        order = traders[tid].getorder(time, time_left, exchange.publish_lob(time, lob_verbose))
+        order_lob = exchange.publish_lob(time, lob_verbose)
+        order = traders[tid].getorder(time, time_left, order_lob)
 
         # if verbose: print('Trader Quote: %s' % (order))
 
@@ -1735,6 +1734,11 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
             if trade is not None:
                 # trade occurred,
                 # so the counterparties update order lists and blotters
+                cust_order = traders[tid].orders[0].price
+                a = [str(i) for i in getSnapshot(order_lob, time, order, trade, cust_order, prev_trade_time)]
+                snapshots.append(a)
+                prev_trade_time = time
+                # break
                 traders[trade['party1']].bookkeep(trade, order, bookkeep_verbose, time)
                 traders[trade['party2']].bookkeep(trade, order, bookkeep_verbose, time)
                 if dump_all:
@@ -1758,22 +1762,20 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
     if dump_all:
 
         # dump the tape (transactions only -- not dumping cancellations)
-        exchange.tape_dump(sess_id+'_transactions.csv', 'w', 'keep')
+        # exchange.tape_dump(sess_id+'_transactions.csv', 'w', 'keep')
 
         # record the blotter for each trader
-        bdump = open(sess_id+'_blotters.csv', 'w')
-        for t in traders:
-            bdump.write('%s, %d\n'% (traders[t].tid, len(traders[t].blotter)))
-            for b in traders[t].blotter:
-                bdump.write('%s, Blotteritem, %s\n' % (traders[t].tid, b))
-        bdump.close()
+        # bdump = open(sess_id+'_blotters.csv', 'w')
+        # for t in traders:
+        #     bdump.write('%s, %d\n'% (traders[t].tid, len(traders[t].blotter)))
+        #     for b in traders[t].blotter:
+        #         bdump.write('%s, Blotteritem, %s\n' % (traders[t].tid, b))
+        # bdump.close()
 
         # record the snapshot for each trader
-        sdump = open('snapshots.csv', 'w' if sess_id == 1 else 'a')
-        for t in traders:
-            if(hasattr(traders[t], 'snapshots')):
-                for s in traders[t].snapshots:
-                    bdump.write('%s, %s\n' % (sess_id, ",".join(s)))
+        sdump = open('snapshots.csv', 'w')
+        for s in snapshots:
+            sdump.write('%s\n' % (",".join(s)))
         sdump.close()
 
 
@@ -1864,6 +1866,7 @@ if __name__ == "__main__":
             dump_all = True
 
         market_session(trial_id, start_time, end_time, traders_spec, order_sched, tdump, dump_all, verbose)
+        break
         tdump.flush()
         trial = trial + 1
 
