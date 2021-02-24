@@ -1773,7 +1773,7 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
         # bdump.close()
 
         # record the snapshot for each trader
-        sdump = open('snapshots.csv', 'w')
+        sdump = open('snapshots.csv', 'a')
         for s in snapshots:
             sdump.write('%s\n' % (",".join(s)))
         sdump.close()
@@ -1781,7 +1781,6 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
 
     # write trade_stats for this session (NB end-of-session summary only)
     trade_stats(sess_id, traders, tdump, time, exchange.publish_lob(time, lob_verbose))
-
 
 
 #############################
