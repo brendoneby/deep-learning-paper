@@ -6,14 +6,61 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-class DeepTrader_Model():
+# class DeepTrader_Model():
+#     def __init__(self):
+#         super(DeepTrader_Model, self).__init__()
+
+#     def forward(self, inputs):
+#         return inputs
+
+class DeepTrader_Model(nn.Module):
     def __init__(self):
         super(DeepTrader_Model, self).__init__()
+        
+        # LSTM layer 
+        self.lstm = nn.LSTM(13, 10)
+        
+        # # Dropout layer
+        # self.drop = nn.Dropout(p=0.2)
+        
+        # First fully connected layer
+        self.fc1 = nn.Linear(10, 5)
+        
+        # Second fully connected layer
+        self.fc2 = nn.Linear(5, 3)
+        
+        # Third fully connected layer - output
+        self.fc3 = nn.Linear(3, 1)
+        
+    # x represents our data
+    def forward(self, x):
+        
+        # Pass data through lstm layer
+        x = self.lstm(x)
+        # x = self.drop(x)
+        
+        # Use the rectified-linear activation function over x
+        x = F.relu(x)
 
-    def forward(self, inputs):
-        return inputs
+        x = self.fc1(x)
+        x = F.relu(x)
+        
+        x = self.fc2(x)
+        x = F.relu(x)
+        
+        x = self.fc3(x)
+        output = F.relu(x)
+        
 
-def loadDeepTrader_Model(fn = "deeptrader_model.pt"):
+        # # Apply softmax to x
+        # output = F.softmax(output, dim=1)
+        return output
+
+def saveDeepTrader_Model(fn = 'deeptrader_model.pt'):
+    model = DeepTrader_Model()
+    torch.save(model.state_dict(), fn)
+
+def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
     model = DeepTrader_Model()
     model.load_state_dict(torch.load(fn))
     return model
@@ -36,3 +83,4 @@ def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
         optimizer.step()
         losses.append(loss.item())
     return model, np.mean(losses)
+    

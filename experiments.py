@@ -8,9 +8,12 @@ def train_deep_model():
     train(num_epochs, dataloader)
 
 def generate_data():
-    n_trials = 4
+    n_trials = 1
     all_configs = get_all_trader_configs()
+    i = 0
     for config in all_configs:
+        i+=1
+        print("trial", i)
         run_sessions(config, config, n_trials)
 
 def run_experiment():
