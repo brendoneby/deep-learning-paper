@@ -84,7 +84,7 @@ def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()
     losses = []
     counter = 0
-    number_of_batches = data_loader.dataset.len / data_loader.dataset.batch_size
+    number_of_batches = 634
     with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
         progress_bar.update(0)
         for batch, target in data_loader:
