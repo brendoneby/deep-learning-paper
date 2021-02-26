@@ -1324,12 +1324,13 @@ class Trader_Deep(Trader):
         self.model = loadDeepTrader_Model()
 
     def getorder(self, time, countdown, lob):
-        snapshot = getSnapshot(lob)
-        snapshot = normalize(snapshot, self.orders[0])
+        otype = self.orders[0].otype
+        isAsk = 0 if otype == 'Bid' else 1
+        limit = self.orders[0].price
+        snapshot = getSnapshot(lob, time, cust_order=limit, isAsk=isAsk)
+        snapshot = normalize(snapshot)
         price = self.model(snapshot.float())
 
-        otype = self.orders[0].otype
-        limit = self.orders[0].price
         if otype == "Ask":
             if price < limit:
                 # self.count[1] += 1

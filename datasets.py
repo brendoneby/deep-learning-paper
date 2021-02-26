@@ -14,8 +14,10 @@ def noramlize_training_data(data):
     data[:,1] = np.sign(data[:,13] - data[:,6])
     max_vals = np.max(data,axis=0)
     min_vals = np.min(data,axis=0)
-    norm_data = (data-min_vals)/(max_vals-min_vals)
-    np.savetxt("data/snapshots_normalized.csv", norm_data, delimiter=",")
+    print(max_vals)
+    print(min_vals)
+    # norm_data = (data-min_vals)/(max_vals-min_vals)
+    # np.savetxt("data/snapshots_normalized.csv", norm_data, delimiter=",")
 
 # Only for Data preparation
 def merge_csv_files():
@@ -25,6 +27,7 @@ def merge_csv_files():
         for line in open("data/snapshots_train"+str(num)+".csv"):
             fout.write(line)
     fout.close()
+
 
 def load_data(path: str, type: str):
     """
@@ -115,6 +118,8 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
     return dataset
     # return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
-# data = load_data("data/snapshots.csv", "train")
+data = load_data("data/snapshots.csv", "train")
 #
-# noramlize_training_data(data)
+noramlize_training_data(data)
+
+# merge_csv_files()
