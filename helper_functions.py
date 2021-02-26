@@ -1,14 +1,14 @@
 import itertools
 import numpy as np
 
-max_vals = [6.00000000e+02, 1.00000000e+00, 1.50000000e+02, 9.50000000e+02,
+max_vals = np.array([6.00000000e+02, 1.00000000e+00, 1.50000000e+02, 9.50000000e+02,
  5.75000000e+02, 1.00000000e+03, 1.50000000e+02, 1.00000000e+03,
  5.27125000e+01, 1.00000000e+00, 7.40000000e+01, 1.50000000e+02,
- 5.60316505e-01, 1.50000000e+02]
-min_vals = [ 1.62500000e-01, 0.00000000e+00, 5.00000000e+01, 1.42108547e-14,
+ 5.60316505e-01, 1.50000000e+02])
+min_vals = np.array([ 1.62500000e-01, 0.00000000e+00, 5.00000000e+01, 1.42108547e-14,
   2.50000000e+01, 1.00000000e+00, 0.00000000e+00, 5.00000000e+01,
   0.00000000e+00, -1.00000000e+00, 1.00000000e+00, 5.00000000e+01,
-  0.00000000e+00, 5.00000000e+01]
+  0.00000000e+00, 5.00000000e+01])
 
 def calcPstar(tape):
     prices = []
@@ -17,6 +17,7 @@ def calcPstar(tape):
             prices.append(trade['price'])
     prices = np.array(prices)
     n = len(prices)
+    if n == 0: return 0,0   #No Trades Yet
     lda = .95
     w = np.array([lda**(n-i) for i in range(n)])
     pstar = np.sum(prices*w)/np.sum(w)
@@ -39,6 +40,10 @@ def getSnapshot(lob, time, order=None, trade=None, cust_order=0, prev_trade_time
     if trade is not None: isAsk = 1 if pa == trade['price'] else 0  # 1 for ask, 0 for bid
     if prev_trade_time is None: prev_trade_time = getLastTrade(lob)
 
+    trade_price = trade['price'] if trade is not None else -1
+    total_quotes = (tqb + tqa)
+    lob_imbalance = 0 if total_quotes == 0 else (tqb - tqa) / total_quotes
+
     snapshot_dict = {
         'time': time,
         'flag': isAsk,
@@ -49,11 +54,11 @@ def getSnapshot(lob, time, order=None, trade=None, cust_order=0, prev_trade_time
         'best_bid_price': pb,
         'best_ask_price': pa,
         'time_since_prev_trade': 0 if prev_trade_time == 0 else time - prev_trade_time,
-        'LOB_imbalance': (tqb - tqa) / (tqb + tqa),
-        'total_quotes': tqa + tqb,
+        'LOB_imbalance': lob_imbalance,
+        'total_quotes': total_quotes,
         'p_star': p_star,
         'smiths_alpha': s_alpha,
-        'trade_price': trade['price'] if trade is not None else None
+        'trade_price': trade_price
     }
     
     return snapshot_dict.values()

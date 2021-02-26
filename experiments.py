@@ -22,18 +22,25 @@ def run_OMT():
     trader = "DEEP"
     avail_traders = get_avail_traders()
     for opponent in avail_traders:
+        if opponent == 'AA': continue
         one_in_many_test(trader, opponent)
 
-def run_OMT():
+def run_BGT(avail_traders = None):
     trader = "DEEP"
-    avail_traders = get_avail_traders()
+    if avail_traders is None:
+        avail_traders = get_avail_traders()
     for opponent in avail_traders:
+        balanced_group_test(trader, opponent)
+
+def run_tests(avail_traders = None):
+    trader = "DEEP"
+    if avail_traders is None:
+        avail_traders = get_avail_traders()
+    for opponent in avail_traders:
+        balanced_group_test(trader, opponent)
         one_in_many_test(trader, opponent)
 
-def run_experiment():
-    #TODO: build
-    pass
+run_tests(['AA','GDX','GVWY','ZIC','SHVR','SNPR','ZIP'])
 
-run_OMT()
-
+# generate_omt_plot("DEEP", "AA")
 # generate_data()

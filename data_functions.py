@@ -24,7 +24,7 @@ def run_sessions(buyers_spec, sellers_spec, n_trials, recordSnapshots = True, ba
     # run a sequence of trials, one session per trial
     verbose = True
     tdump = open(balance_file, 'w')
-    total_dump = open(total_file, 'a')
+    total_dump = open(total_file, 'w')
     trial = 1
 
     while trial < (n_trials + 1):
@@ -85,7 +85,9 @@ def one_in_many_test(traderOne, traderMany):
     test_type = "OMT"
     traders_spec = [(traderOne,1),(traderMany,39)]
     total_file = get_test_file(test_type, traderOne, traderMany)
+
     n_trials = 100
+    print("Starting One-vs-many test for "+traderOne+" vs "+traderMany)
     run_sessions(traders_spec, traders_spec, n_trials, total_file=total_file)
     generate_omt_plot(traderOne, traderMany)
 
@@ -99,6 +101,7 @@ def balanced_group_test(traderOne, traderTwo):
     traders_spec = [(traderOne,20),(traderTwo,20)]
     total_file = get_test_file(test_type, traderOne, traderTwo)
     n_trials = 100
+    print("Starting Balanced Group test for "+traderOne+" vs "+traderTwo)
     run_sessions(traders_spec, traders_spec, n_trials, total_file=total_file)
     generate_omt_plot(traderOne, traderTwo)
 

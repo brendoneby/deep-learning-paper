@@ -41,6 +41,7 @@ class DeepTrader_Model(nn.Module):
         # print(x)
         # print(x.shape)
         x, states = self.lstm(x, states)
+        self.states = states
         # x = self.drop(x)
         
         # Use the rectified-linear activation function over x
@@ -61,9 +62,11 @@ class DeepTrader_Model(nn.Module):
         return x, states
 
     def generate_initial_states(self, batch_size=None, device=torch.device('cpu')):
-        return torch.zeros(1, batch_size, 10, device=device), torch.zeros(1, batch_size, 10, device=device)
+        self.states = torch.zeros(1, batch_size, 10, device=device), torch.zeros(1, batch_size, 10, device=device)
+        return self.states
 
-    def detach_states(self, states):
+    def detach_states(self, states=None):
+        if states == None: states = self.states
         h, c = states
         return (h.detach(), c.detach())
 
@@ -72,9 +75,10 @@ class DeepTrader_Model(nn.Module):
 def saveDeepTrader_Model(model, fn = 'deeptrader_model.pt'):
     torch.save(model.state_dict(), fn)
 
-def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
+def loadDeepTrader_Model(fn = 'deeptrader_model.pt', device=torch.device('cpu')):
     model = DeepTrader_Model()
-    model.load_state_dict(torch.load(fn))
+    model.load_state_dict(torch.load(fn, map_location=device))
+    model.generate_initial_states(batch_size=1)
     return model
 
 def train(num_epochs, data_loader, device=torch.device('cpu'), lr=5e-5):

@@ -49,6 +49,9 @@
 import sys
 import math
 import random
+
+import torch
+
 from helper_functions import *
 from DeepTrader import loadDeepTrader_Model
 # import Trader_AA
@@ -1324,25 +1327,42 @@ class Trader_Deep(Trader):
         self.model = loadDeepTrader_Model()
 
     def getorder(self, time, countdown, lob):
-        otype = self.orders[0].otype
-        isAsk = 0 if otype == 'Bid' else 1
-        limit = self.orders[0].price
-        snapshot = getSnapshot(lob, time, cust_order=limit, isAsk=isAsk)
-        snapshot = normalize(snapshot[:13])
-        norm_price = self.model(snapshot.float())
-        price = unnormalizePrice(norm_price)
-
-        if otype == "Ask":
-            if price < limit:
-                # self.count[1] += 1
-                price = limit
+        if len(self.orders) < 1:
+            order = None
         else:
-            if price > limit:
-                # self.count[0] += 1
-                price = limit
+            otype = self.orders[0].otype
+            isAsk = 0 if otype == 'Bid' else 1
+            limit = self.orders[0].price
+            snapshot = getSnapshot(lob, time, cust_order=limit, isAsk=isAsk)
+            snapshot = np.array(list(snapshot))
+            # print(snapshot)
+            snapshot = normalize(snapshot[:13])
+            # print(snapshot)
+            snapshot = torch.from_numpy(snapshot)
+            snapshot = snapshot.reshape(1, 1, snapshot.shape[0])
+            # print(snapshot)
+            states = self.model.detach_states()
+            norm_price,_ = self.model(snapshot.float(), states)
+            price = unnormalizePrice(norm_price.item())
+            # print("quoting:",price)
+            # print("limit:",limit)
+            # print("order type:",otype)
+            # assert(False)
 
-        order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
-        self.lastquote = order
+            if otype == "Ask":
+                if price < limit:
+                    # self.count[1] += 1
+                    price = limit
+            else:
+                if price > limit:
+                    # self.count[0] += 1
+                    price = limit
+
+            # print("actual quote:",price)
+            # print()
+
+            order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
+            self.lastquote = order
         return order
 
 
@@ -1672,7 +1692,7 @@ def customer_orders(time, last_update, traders, trader_stats, os, pending, verbo
 
 
 # one session in the market
-def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdump, dump_all, verbose):
+def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdump, dump_all, verbose, total_dump = None):
 
     snapshots= []
 
@@ -1785,7 +1805,7 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
         #         bdump.write('%s, Blotteritem, %s\n' % (traders[t].tid, b))
         # bdump.close()
 
-        # record the snapshot for each trader
+        # record all snapshots
         sdump = open('snapshots.csv', 'a')
         for s in snapshots:
             sdump.write('%s\n' % (",".join(s)))
@@ -1793,7 +1813,11 @@ def market_session(sess_id, starttime, endtime, trader_spec, order_schedule, tdu
 
 
     # write trade_stats for this session (NB end-of-session summary only)
-    trade_stats(sess_id, traders, tdump, time, exchange.publish_lob(time, lob_verbose))
+    # trade_stats(sess_id, traders, tdump, time, exchange.publish_lob(time, lob_verbose))
+
+    # write out trader performance
+    if total_dump != None:
+        trade_stats(sess_id, traders, total_dump, time, exchange.publish_lob(time, lob_verbose))
 
 
 #############################
