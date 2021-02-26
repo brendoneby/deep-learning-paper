@@ -50,7 +50,7 @@ class Sequence_Dataset(Dataset):
     def __len__(self):
         return self.len
 
-def _build_dataloader(data:np.ndarray, batch_size:int) -> DataLoader:
+def build_dataloader(data:np.ndarray, batch_size:int) -> DataLoader:
     """
     :param data: input array of floats
     :param batch_size: hyper parameter, for mini-batch size
@@ -67,6 +67,6 @@ def _build_dataloader(data:np.ndarray, batch_size:int) -> DataLoader:
     dataset = Sequence_Dataset(x=inputs, y=targets)
     return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
 
-data = load_data("data/snapshots.csv", "train")
-
-noramlize_training_data(data)
+# data = load_data("data/snapshots.csv", "train")
+#
+# noramlize_training_data(data)
