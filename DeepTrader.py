@@ -74,7 +74,7 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
     losses = np.array([])
     for e in range(num_epochs):
-        print("running epoch ",e,"...")
+        print("running epoch "+e+"...")
         model, elosses = _train_epoch(model, data_loader, optimizer, device)
         losses.append(np.mean(elosses))
     torch.save(model.state_dict(), "deeptrader_model.pt")
@@ -86,17 +86,18 @@ def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
     losses = []
     counter = 0
     number_of_batches = 634
-    with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
-        progress_bar.update(0)
-        for batch, target in data_loader:
-            optimizer.zero_grad()
-            output = model(batch.float())
-            loss = loss_func(output, target)
-            loss.backward()
-            optimizer.step()
-            losses.append(loss.item())
+    # with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
+    #     progress_bar.update(0)
+    for batch, target in data_loader:
+        if counter%10: print("batch " + counter + " of " + number_of_batches)
+        optimizer.zero_grad()
+        output = model(batch.float())
+        loss = loss_func(output, target)
+        loss.backward()
+        optimizer.step()
+        losses.append(loss.item())
 
-            counter += 1
-            progress_bar.update(counter)
+        counter += 1
+            # progress_bar.update(counter)
     return model, np.mean(losses)
     
