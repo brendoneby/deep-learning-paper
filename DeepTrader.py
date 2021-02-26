@@ -38,8 +38,8 @@ class DeepTrader_Model(nn.Module):
     def forward(self, x, states):
         
         # Pass data through lstm layer
-        print(x)
-        print(x.shape)
+        # print(x)
+        # print(x.shape)
         x, states = self.lstm(x, states)
         # x = self.drop(x)
         
@@ -104,7 +104,7 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
             # batch.to(device)
             # target.to(device)
             if batch == None: break;
-            print("batch " + str(counter) + " of " + str(number_of_batches))
+            # print("batch " + str(counter) + " of " + str(number_of_batches))
             optimizer.zero_grad()
             states = model.detach_states(states)
             output, states = model(batch, states)
