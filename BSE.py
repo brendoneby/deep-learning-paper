@@ -262,7 +262,7 @@ class Exchange(Orderbook):
         # receive an order and either add it to the relevant LOB (ie treat as limit order)
         # or if it crosses the best counterparty offer, execute it (treat as a market order)
 
-        best = 0 # 1 if trader sells/hits best bid price or if trader lifts/buys at best ask price
+        best = -1 # 1 if trader sells/hits best bid price or if trader lifts/buys at best ask price
 
         oprice = order.price
         counterparty = None
@@ -292,7 +292,7 @@ class Exchange(Orderbook):
         elif order.otype == 'Ask':
             if self.bids.n_orders > 0 and best_ask <= best_bid:
                 # ask hits the best bid
-                best = 1
+                best = 0
                 if verbose:
                     print("Ask $%s hits best bid" % oprice)
                 # remove the best bid

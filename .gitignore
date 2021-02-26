@@ -10,3 +10,5 @@ data/snapshots_train1.csv
 data/snapshots_train2.csv
 data/snapshots_train4.csv
 data/snapshots_train3.csv
+data/snapshots_normalized.csv
+data/temp.csv

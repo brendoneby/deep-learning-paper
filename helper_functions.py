@@ -45,6 +45,7 @@ def getSnapshot(lob, time, order, trade, cust_order, prev_trade_time):
     
     return snapshot_dict.values()
 
-def normalize(snapshot):
+def normalize(min_val, max_val, row):
+    
     #MASUM: normalize snapshots
     return snapshot

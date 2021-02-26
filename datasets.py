@@ -1,12 +1,20 @@
 import numpy as np
 from numpy import genfromtxt
 import torch
+from torch.functional import norm
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset, DataLoader
 import sys
 
-sys.path.append("/Users/davinci/NU_work/Advanced Deep/deep-learning-paper/")
+# sys.path.append("/Users/davinci/NU_work/Advanced Deep/deep-learning-paper/")
 # print(sys.path)
+
+def noramlize_training_data(data):
+    data[:,1] = np.sign(data[:,13] - data[:,6])
+    max_vals = np.max(data,axis=0)
+    min_vals = np.min(data,axis=0)
+    norm_data = (data-min_vals)/(max_vals-min_vals)
+    np.savetxt("data/snapshots_normalized.csv", norm_data, delimiter=",")
 
 # Only for Data preparation
 def merge_csv_files():
@@ -17,18 +25,18 @@ def merge_csv_files():
             fout.write(line)
     fout.close()
 
-def load_text_data(path: str, type: str):
+def load_data(path: str, type: str):
     """
     read csv file
     :param path:
     :return:
     """
-    
+
     train = genfromtxt(path, delimiter=',')
-    val = train[:100000]
-    train = train[100000:]
+    # val = train[:100000]
+    # train = train[100000:]
     
-    return train, val
+    return train
 
 class Sequence_Dataset(Dataset):
     def __init__(self, x:torch.LongTensor, y:torch.LongTensor):
@@ -58,3 +66,7 @@ def _build_dataloader(data:np.ndarray, batch_size:int) -> DataLoader:
     # create Dataset object and from it create data loader
     dataset = Sequence_Dataset(x=inputs, y=targets)
     return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
+
+data = load_data("data/snapshots.csv", "train")
+
+noramlize_training_data(data)
