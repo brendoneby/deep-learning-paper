@@ -46,19 +46,20 @@ class Sequence_Dataset(Dataset):
         # self.y = y
         # self.len = x.shape[0]
         self.fn = fn
+        self.infile = None
         self.reset_infile()
         self.batch_size = batch_size
         self.len = 0
         with open(fn, 'r') as infile:
             while True:
                 gen = islice(infile, batch_size)
-                print(gen)
+                # print(gen)
                 self.len += len(gen)
                 if len(gen) < batch_size:
                     break
 
     def reset_infile(self):
-        self.infile.close()
+        if(self.infile != None): self.infile.close()
         self.infile = open(self.fn, 'r')
 
     def __getitem__(self, idx):
