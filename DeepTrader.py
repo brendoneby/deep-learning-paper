@@ -101,8 +101,8 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     # print("running epoch")
         while True:
             batch, target = dataset.getData()
-            batch.to(device)
-            target.to(device)
+            # batch.to(device)
+            # target.to(device)
             if batch == None: break;
             print("batch " + str(counter) + " of " + str(number_of_batches))
             optimizer.zero_grad()

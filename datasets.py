@@ -41,7 +41,7 @@ def load_data(path: str, type: str):
 
 class Sequence_Dataset():
     # def __init__(self, x:torch.LongTensor, y:torch.LongTensor):
-    def __init__(self, fn, batch_size):
+    def __init__(self, fn, batch_size, device):
         # self.x = x
         # self.y = y
         # self.len = x.shape[0]
@@ -50,6 +50,7 @@ class Sequence_Dataset():
         self.reset_infile()
         self.batch_size = batch_size
         self.len = 10396317
+        self.device = device
         # self.len = 0
         # with open(fn, 'r') as infile:
         #     while True:
@@ -74,9 +75,9 @@ class Sequence_Dataset():
         if data.shape[0] < self.batch_size:
             self.reset_infile()
             return [], []
-        inputs = torch.tensor(data[:,:13],dtype=torch.float)
+        inputs = torch.tensor(data[:,:13],dtype=torch.float, device=self.device)
         inputs = inputs.resize(1,inputs.shape[0],inputs.shape[1])
-        targets = torch.tensor(data[:,13],dtype=torch.float)
+        targets = torch.tensor(data[:,13],dtype=torch.float, device=self.device)
         # print(inputs)
         # print(targets)
         return inputs, targets
