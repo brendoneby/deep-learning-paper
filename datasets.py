@@ -66,7 +66,7 @@ class Sequence_Dataset(Dataset):
         self.infile = open(self.fn, 'r')
 
     def __getitem__(self, idx):
-        print("Loading batch ")
+        # print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
         data = np.genfromtxt(gen, delimiter=',')
         # print(data.shape)

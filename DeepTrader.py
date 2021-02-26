@@ -58,7 +58,7 @@ class DeepTrader_Model(nn.Module):
         output = F.softmax(x, dim=1)
         return output
 
-model = DeepTrader_Model()
+# model = DeepTrader_Model()
 
 def saveDeepTrader_Model(model, fn = 'deeptrader_model.pt'):
     torch.save(model.state_dict(), fn)
@@ -70,6 +70,7 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
 
 def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
+    model.to(model.device)
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
     losses = np.array([])
     for e in range(num_epochs):
