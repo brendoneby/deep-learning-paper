@@ -102,7 +102,7 @@ class Sequence_Dataset():
 #     dataset = Sequence_Dataset(x=inputs, y=targets)
 #     return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
 
-def build_dataloader(fn, batch_size) -> DataLoader:
+def build_dataloader(fn, batch_size, device) -> DataLoader:
     """
     :param data: input array of floats
     :param batch_size: hyper parameter, for mini-batch size
@@ -110,7 +110,7 @@ def build_dataloader(fn, batch_size) -> DataLoader:
     """
 
     # create Dataset object and from it create data loader
-    dataset = Sequence_Dataset(fn, batch_size)
+    dataset = Sequence_Dataset(fn, batch_size, device)
     return dataset
     # return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
