@@ -66,18 +66,18 @@ class Sequence_Dataset():
         self.infile = open(self.fn, 'r')
 
     def getData(self):
-        print("Loading batch ")
+        # print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
         data = np.genfromtxt(gen, delimiter=',')
-        print(data.shape)
-        print(data)
+        # print(data.shape)
+        # print(data)
         if data.shape[0] < self.batch_size:
             self.reset_infile()
             return [], []
-        inputs = torch.tensor(data[:,13],dtype=torch.long)
-        targets = torch.tensor(data[:,:13],dtype=torch.long)
-        print(inputs)
-        print(targets)
+        inputs = torch.tensor(data[:,:13],dtype=torch.float)
+        targets = torch.tensor(data[:,13],dtype=torch.float)
+        # print(inputs)
+        # print(targets)
         return inputs, targets
 
     def __len__(self):
