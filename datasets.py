@@ -49,15 +49,16 @@ class Sequence_Dataset(Dataset):
         self.infile = None
         self.reset_infile()
         self.batch_size = batch_size
-        self.len = 0
-        with open(fn, 'r') as infile:
-            while True:
-                gen = islice(infile, batch_size)
-                # print(gen)
-                l = len(tuple(gen))
-                self.len += l
-                if l < batch_size:
-                    break
+        self.len = 10396317
+        # self.len = 0
+        # with open(fn, 'r') as infile:
+        #     while True:
+        #         gen = islice(infile, batch_size)
+        #         # print(gen)
+        #         l = len(tuple(gen))
+        #         self.len += l
+        #         if l < batch_size:
+        #             break
         print("len:",self.len)
 
     def reset_infile(self):
@@ -67,7 +68,7 @@ class Sequence_Dataset(Dataset):
     def __getitem__(self, idx):
         print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
-        data = np.genfromtxt(gen, dtype=None)
+        data = np.genfromtxt(gen, delimiter=',')
         print(data.shape)
         print(data)
         if data.shape[0] < self.batch_size:
