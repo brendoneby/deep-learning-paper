@@ -69,7 +69,7 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
 def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
-    for e in len(num_epochs):
+    for e in range(num_epochs):
         _train_epoch(model, data_loader, optimizer, device)
     torch.save(model.state_dict(), "deeptrader_model.pt")
 
