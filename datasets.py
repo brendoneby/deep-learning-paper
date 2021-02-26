@@ -109,7 +109,7 @@ def build_dataloader(fn, batch_size) -> DataLoader:
 
     # create Dataset object and from it create data loader
     dataset = Sequence_Dataset(fn, batch_size)
-    return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
+    return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
 # data = load_data("data/snapshots.csv", "train")
 #
