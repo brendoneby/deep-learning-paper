@@ -14,7 +14,7 @@ def calcPstar(tape):
     alpha = np.sqrt( np.sum([(prices[i] - pstar)**2 for i in range(n)])/n )/pstar
     return pstar, alpha
 
-def getSnapshot(lob, time, order, trade, cust_order, prev_trade_time):
+def getSnapshot(lob, time, order=None, trade=None, cust_order=0, prev_trade_time=None):
     # print(lob)
     # print(order)
     # print(trade)

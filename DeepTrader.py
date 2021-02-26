@@ -81,7 +81,7 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=8e-5)
-    # print(list(model.parameters()))
+    # print(list(model.parxameters()))
     losses = []
     for e in range(num_epochs):
         print("running epoch "+str(e)+"...")
@@ -90,9 +90,9 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     torch.save(model.state_dict(), "deeptrader_model.pt")
     plt.clf()
     plt.title("Model Loss Over Epoch")
-    plt.xlabel('Epoch')
+    plt.xlabel('Epoch')s
     plt.ylabel('RMS Loss')
-    plt.plot(range(20), losses, color='green')
+    plt.plot(range(len(losses)), losses, color='green')
 
 def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()

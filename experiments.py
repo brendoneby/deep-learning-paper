@@ -18,6 +18,18 @@ def generate_data():
         print("trial", i)
         run_sessions(config, config, n_trials)
 
+def run_OMT():
+    trader = "DEEP"
+    avail_traders = get_avail_traders()
+    for opponent in avail_traders:
+        one_in_many_test(trader, opponent)
+
+def run_OMT():
+    trader = "DEEP"
+    avail_traders = get_avail_traders()
+    for opponent in avail_traders:
+        one_in_many_test(trader, opponent)
+
 def run_experiment():
     #TODO: build
     pass

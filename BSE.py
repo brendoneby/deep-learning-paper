@@ -1328,6 +1328,17 @@ class Trader_Deep(Trader):
         snapshot = normalize(snapshot, self.orders[0])
         price = self.model(snapshot.float())
 
+        otype = self.orders[0].otype
+        limit = self.orders[0].price
+        if otype == "Ask":
+            if price < limit:
+                # self.count[1] += 1
+                price = limit
+        else:
+            if price > limit:
+                # self.count[0] += 1
+                price = limit
+
         order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
         self.lastquote = order
         return order
