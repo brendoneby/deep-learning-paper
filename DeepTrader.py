@@ -115,4 +115,6 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
 
             counter += 1
             progress_bar.update(counter)
-    return model, np.mean(losses)
+    meanLoss = np.mean(losses)
+    print("Loss:",meanLoss)
+    return model, meanLoss
