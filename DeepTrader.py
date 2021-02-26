@@ -58,8 +58,8 @@ class DeepTrader_Model(nn.Module):
         output = F.softmax(x, dim=1)
         return output, states
 
-    def generate_initial_states(model, batch_size=None):
-        return torch.zeros(1, batch_size, 10, device=model.device), torch.zeros(1, batch_size, 10, device=model.device)
+    def generate_initial_states(model, batch_size=None, device=torch.device('cpu')):
+        return torch.zeros(1, batch_size, 10, device=device), torch.zeros(1, batch_size, 10, device=device)
 
     def detach_states(states):
         h, c = states
@@ -93,7 +93,7 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     losses = []
     counter = 0
     number_of_batches = 634
-    initial_states = model.generate_initial_states(dataset.batch_size)
+    initial_states = model.generate_initial_states(dataset.batch_size, device)
     with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
         progress_bar.update(0)
     # print("running epoch")
