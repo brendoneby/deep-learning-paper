@@ -35,10 +35,10 @@ class DeepTrader_Model(nn.Module):
         self.fc3 = nn.Linear(3, 1)
         
     # x represents our data
-    def forward(self, x):
+    def forward(self, x, states):
         
         # Pass data through lstm layer
-        x = self.lstm(x)
+        x, states = self.lstm(x, states)
         # x = self.drop(x)
         
         # Use the rectified-linear activation function over x
@@ -56,7 +56,14 @@ class DeepTrader_Model(nn.Module):
 
         # # Apply softmax to x
         output = F.softmax(x, dim=1)
-        return output
+        return output, states
+
+    def generate_initial_states(model, batch_size=None):
+        return torch.zeros(1, batch_size, 10, device=model.device), torch.zeros(1, batch_size, 10, device=model.device)
+
+    def detach_states(states):
+        h, c = states
+        return (h.detach(), c.detach())
 
 # model = DeepTrader_Model()
 
@@ -81,20 +88,22 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     plt.plot(losses)
     plt.show()
 
-def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
+def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()
     losses = []
     counter = 0
     number_of_batches = 634
+    initial_states = model.generate_initial_states(dataset.batch_size)
     with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
         progress_bar.update(0)
     # print("running epoch")
         while True:
-            batch, target = data_loader.getData()
+            batch, target = dataset.getData()
             if batch == None: break;
             print("batch " + str(counter) + " of " + str(number_of_batches))
             optimizer.zero_grad()
-            output = model(batch.float())
+            states = model.detach_states(states)
+            output, states = model(batch.float(), states)
             loss = loss_func(output, target)
             loss.backward()
             optimizer.step()
