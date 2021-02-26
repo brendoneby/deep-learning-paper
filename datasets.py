@@ -74,8 +74,8 @@ class Sequence_Dataset():
         if data.shape[0] < self.batch_size:
             self.reset_infile()
             return [], []
-        inputs = torch.tensor(data[:,13],dtype='long')
-        targets = torch.tensor(data[:,:13],dtype='long')
+        inputs = torch.tensor(data[:,13],dtype=torch.long)
+        targets = torch.tensor(data[:,:13],dtype=torch.long)
         # print(inputs)
         # print(targets)
         return inputs, targets
