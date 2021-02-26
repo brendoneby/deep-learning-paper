@@ -52,6 +52,7 @@ class Sequence_Dataset(Dataset):
         with open(fn, 'r') as infile:
             while True:
                 gen = islice(infile, batch_size)
+                print(gen)
                 self.len += len(gen)
                 if len(gen) < batch_size:
                     break
