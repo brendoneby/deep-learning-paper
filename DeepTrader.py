@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
+import matplotlib as plt
 
 # class DeepTrader_Model():
 #     def __init__(self):
@@ -49,11 +50,11 @@ class DeepTrader_Model(nn.Module):
         x = F.relu(x)
         
         x = self.fc3(x)
-        output = F.relu(x)
+        # output = F.relu(x)
         
 
         # # Apply softmax to x
-        # output = F.softmax(output, dim=1)
+        output = F.softmax(x, dim=1)
         return output
 
 model = DeepTrader_Model()
@@ -69,9 +70,13 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
 def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
+    losses = np.array([])
     for e in range(num_epochs):
-        _train_epoch(model, data_loader, optimizer, device)
+        model, elosses = _train_epoch(model, data_loader, optimizer, device)
+        losses.append(np.mean(elosses))
     torch.save(model.state_dict(), "deeptrader_model.pt")
+    plt.plot(losses)
+    plt.show()
 
 def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()
