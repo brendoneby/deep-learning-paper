@@ -54,8 +54,9 @@ class Sequence_Dataset(Dataset):
             while True:
                 gen = islice(infile, batch_size)
                 # print(gen)
-                self.len += len(tuple(gen))
-                if len(gen) < batch_size:
+                l = len(tuple(gen))
+                self.len += l
+                if l < batch_size:
                     break
 
     def reset_infile(self):
