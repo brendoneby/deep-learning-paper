@@ -58,10 +58,10 @@ class DeepTrader_Model(nn.Module):
         output = F.softmax(x, dim=1)
         return output, states
 
-    def generate_initial_states(model, batch_size=None, device=torch.device('cpu')):
+    def generate_initial_states(self, batch_size=None, device=torch.device('cpu')):
         return torch.zeros(1, batch_size, 10, device=device), torch.zeros(1, batch_size, 10, device=device)
 
-    def detach_states(states):
+    def detach_states(self, states):
         h, c = states
         return (h.detach(), c.detach())
 
