@@ -48,6 +48,13 @@ class Sequence_Dataset(Dataset):
         self.fn = fn
         self.infile = open(self.fn, 'r')
         self.batch_size = batch_size
+        self.len = 0
+        with open(fn, 'r') as infile:
+            while True:
+                gen = islice(infile, batch_size)
+                self.len += len(gen)
+                if len(gen) < batch_size:
+                    break
 
     def __getitem__(self, idx):
         print("Loading batch ")
