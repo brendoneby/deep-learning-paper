@@ -118,8 +118,8 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
     return dataset
     # return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
-# data = load_data("data/snapshots.csv", "train")
-# #
-# noramlize_training_data(data)
+data = load_data("data/snapshots.csv", "train")
+#
+noramlize_training_data(data)
 
 # merge_csv_files()

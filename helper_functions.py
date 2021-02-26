@@ -1,8 +1,14 @@
 import itertools
 import numpy as np
 
-maxVals = []
-minVals = []
+max_vals = [6.00000000e+02, 1.00000000e+00, 1.50000000e+02, 9.50000000e+02,
+ 5.75000000e+02, 1.00000000e+03, 1.50000000e+02, 1.00000000e+03,
+ 5.27125000e+01, 1.00000000e+00, 7.40000000e+01, 1.50000000e+02,
+ 5.60316505e-01, 1.50000000e+02]
+min_vals = [ 1.62500000e-01, 0.00000000e+00, 5.00000000e+01, 1.42108547e-14,
+  2.50000000e+01, 1.00000000e+00, 0.00000000e+00, 5.00000000e+01,
+  0.00000000e+00, -1.00000000e+00, 1.00000000e+00, 5.00000000e+01,
+  0.00000000e+00, 5.00000000e+01]
 
 def calcPstar(tape):
     prices = []
@@ -60,7 +66,13 @@ def getLastTrade(lob):
             return tapeItem['time']
     return 0
 
-def normalize(min_val, max_val, row):
-    
-    #MASUM: normalize snapshots
-    return snapshot
+def normalize(data):
+    max_vals_l = max_vals[:len(data)]
+    min_vals_l = min_vals[:len(data)]
+    return (data-min_vals_l)/(max_vals_l-min_vals_l)
+
+def unnormalizePrice(price):
+    maxPrice = max_vals[-1]
+    minPrice = min_vals[-1]
+    real_price = price * (maxPrice-minPrice) + minPrice
+    return real_price

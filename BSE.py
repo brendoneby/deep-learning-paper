@@ -1328,8 +1328,9 @@ class Trader_Deep(Trader):
         isAsk = 0 if otype == 'Bid' else 1
         limit = self.orders[0].price
         snapshot = getSnapshot(lob, time, cust_order=limit, isAsk=isAsk)
-        snapshot = normalize(snapshot)
-        price = self.model(snapshot.float())
+        snapshot = normalize(snapshot[:13])
+        norm_price = self.model(snapshot.float())
+        price = unnormalizePrice(norm_price)
 
         if otype == "Ask":
             if price < limit:
