@@ -8,7 +8,7 @@ def train_deep_model():
     train(num_epochs, dataloader)
 
 def generate_data():
-    n_trials = 1
+    n_trials = 12
     all_configs = get_all_trader_configs()
     i = 0
     for config in all_configs:

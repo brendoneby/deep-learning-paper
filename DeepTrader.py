@@ -56,8 +56,9 @@ class DeepTrader_Model(nn.Module):
         # output = F.softmax(output, dim=1)
         return output
 
-def saveDeepTrader_Model(fn = 'deeptrader_model.pt'):
-    model = DeepTrader_Model()
+model = DeepTrader_Model()
+
+def saveDeepTrader_Model(model, fn = 'deeptrader_model.pt'):
     torch.save(model.state_dict(), fn)
 
 def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
@@ -67,13 +68,13 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
 
 def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
-    optimizer = optim.Adam()
+    optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
     for e in num_epochs:
         _train_epoch(model, data_loader, optimizer, device)
     torch.save(model.state_dict(), "deeptrader_model.pt")
 
 def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
-    loss_func = nn.CrossEntropyLoss()
+    loss_func = nn.MSELoss()
     losses = []
     for batch, target in data_loader:
         optimizer.zero_grad()
