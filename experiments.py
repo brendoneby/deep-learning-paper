@@ -34,4 +34,6 @@ def run_experiment():
     #TODO: build
     pass
 
+run_OMT()
+
 # generate_data()

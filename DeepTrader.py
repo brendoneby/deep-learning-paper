@@ -77,10 +77,10 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
     model.load_state_dict(torch.load(fn))
     return model
 
-def train(num_epochs, data_loader, device=torch.device('cpu')):
+def train(num_epochs, data_loader, device=torch.device('cpu'), lr=5e-5):
     model = DeepTrader_Model()
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=6e-5)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     # print(list(model.parxameters()))
     losses = []
     for e in range(num_epochs):
