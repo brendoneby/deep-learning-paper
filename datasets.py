@@ -39,7 +39,7 @@ def load_data(path: str, type: str):
     
     return train
 
-class Sequence_Dataset(Dataset):
+class Sequence_Dataset():
     # def __init__(self, x:torch.LongTensor, y:torch.LongTensor):
     def __init__(self, fn, batch_size):
         # self.x = x
@@ -65,7 +65,7 @@ class Sequence_Dataset(Dataset):
         if self.infile != None: self.infile.close()
         self.infile = open(self.fn, 'r')
 
-    def __getitem__(self, idx):
+    def getData(self):
         # print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
         data = np.genfromtxt(gen, delimiter=',')
@@ -74,8 +74,8 @@ class Sequence_Dataset(Dataset):
         if data.shape[0] < self.batch_size:
             self.reset_infile()
             return [], []
-        inputs = data[:,13]
-        targets = data[:,:13]
+        inputs = torch.tensor(data[:,13],dtype='long')
+        targets = torch.tensor(data[:,:13],dtype='long')
         # print(inputs)
         # print(targets)
         return inputs, targets
@@ -109,7 +109,8 @@ def build_dataloader(fn, batch_size) -> DataLoader:
 
     # create Dataset object and from it create data loader
     dataset = Sequence_Dataset(fn, batch_size)
-    return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
+    return dataset
+    # return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
 # data = load_data("data/snapshots.csv", "train")
 #

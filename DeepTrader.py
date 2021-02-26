@@ -86,19 +86,20 @@ def _train_epoch(model, data_loader, optimizer, device=torch.device('cpu')):
     losses = []
     counter = 0
     number_of_batches = 634
-    # with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
-    #     progress_bar.update(0)
-    print("running epoch")
-    for batch, target in data_loader:
-        print("batch " + str(counter) + " of " + str(number_of_batches))
-        optimizer.zero_grad()
-        output = model(batch.float())
-        loss = loss_func(output, target)
-        loss.backward()
-        optimizer.step()
-        losses.append(loss.item())
+    with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
+        progress_bar.update(0)
+    # print("running epoch")
+        while True:
+            batch, target = data_loader.getData()
+            if batch == None: break;
+            print("batch " + str(counter) + " of " + str(number_of_batches))
+            optimizer.zero_grad()
+            output = model(batch.float())
+            loss = loss_func(output, target)
+            loss.backward()
+            optimizer.step()
+            losses.append(loss.item())
 
-        counter += 1
-            # progress_bar.update(counter)
+            counter += 1
+            progress_bar.update(counter)
     return model, np.mean(losses)
-    
