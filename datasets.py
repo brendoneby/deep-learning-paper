@@ -76,9 +76,9 @@ class Sequence_Dataset():
             self.reset_infile()
             return None, None
         inputs = torch.tensor(data[:,:13],dtype=torch.float, device=self.device)
-        inputs = inputs.resize(1,inputs.shape[0],inputs.shape[1])
+        inputs = inputs.reshape(1,inputs.shape[0],inputs.shape[1])
         targets = torch.tensor(data[:,13],dtype=torch.float, device=self.device)
-        targets = targets.resize(1,targets.shape[0],1)
+        targets = targets.reshape(1,targets.shape[0],1)
         # print(inputs)
         # print(targets)
         return inputs, targets

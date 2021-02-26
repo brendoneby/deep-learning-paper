@@ -81,7 +81,7 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=1.5e-5)
-    losses = np.array([])
+    losses = []
     for e in range(num_epochs):
         print("running epoch "+str(e)+"...")
         model, elosses = _train_epoch(model, data_loader, optimizer, device)
