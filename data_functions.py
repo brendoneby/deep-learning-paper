@@ -103,7 +103,7 @@ def balanced_group_test(traderOne, traderTwo):
     n_trials = 100
     print("Starting Balanced Group test for "+traderOne+" vs "+traderTwo)
     run_sessions(traders_spec, traders_spec, n_trials, total_file=total_file)
-    generate_omt_plot(traderOne, traderTwo)
+    generate_bgt_plot(traderOne, traderTwo)
 
 def generate_bgt_plot(traderOne, traderTwo):
     file = get_test_file("BGT", traderOne, traderTwo)
