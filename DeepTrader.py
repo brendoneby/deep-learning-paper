@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import progressbar
 from torch.utils.data import DataLoader
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # class DeepTrader_Model():
 #     def __init__(self):
@@ -80,7 +80,7 @@ def loadDeepTrader_Model(fn = 'deeptrader_model.pt'):
 def train(num_epochs, data_loader, device=torch.device('cpu')):
     model = DeepTrader_Model()
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=5e-5)
+    optimizer = optim.Adam(model.parameters(), lr=8e-5)
     # print(list(model.parameters()))
     losses = []
     for e in range(num_epochs):
@@ -88,8 +88,11 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
         model, elosses = _train_epoch(model, data_loader, optimizer, device)
         losses.append(np.mean(elosses))
     torch.save(model.state_dict(), "deeptrader_model.pt")
-    plt.plot(losses)
-    plt.show()
+    plt.clf()
+    plt.title("Model Loss Over Epoch")
+    plt.xlabel('Epoch')
+    plt.ylabel('RMS Loss')
+    plt.plot(range(20), losses, color='green')
 
 def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()
