@@ -58,6 +58,7 @@ class Sequence_Dataset(Dataset):
                 self.len += l
                 if l < batch_size:
                     break
+        print("len:",self.len)
 
     def reset_infile(self):
         if self.infile != None: self.infile.close()
