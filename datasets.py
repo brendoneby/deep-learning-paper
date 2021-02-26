@@ -46,7 +46,7 @@ class Sequence_Dataset(Dataset):
         # self.y = y
         # self.len = x.shape[0]
         self.fn = fn
-        self.infile = open(self.fn, 'r')
+        self.reset_infile()
         self.batch_size = batch_size
         self.len = 0
         with open(fn, 'r') as infile:
@@ -56,13 +56,16 @@ class Sequence_Dataset(Dataset):
                 if len(gen) < batch_size:
                     break
 
+    def reset_infile(self):
+        self.infile.close()
+        self.infile = open(self.fn, 'r')
+
     def __getitem__(self, idx):
         print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
         data = np.genfromtxt(gen, dtype=None)
         if data.shape[0] < self.batch_size:
-            self.infile.close()
-            self.infile = open(self.fn, 'r')
+            self.reset_infile()
             return [], []
         inputs = data[:,13]
         targets = data[:,:13]
