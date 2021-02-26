@@ -90,7 +90,7 @@ def train(num_epochs, data_loader, device=torch.device('cpu')):
     torch.save(model.state_dict(), "deeptrader_model.pt")
     plt.clf()
     plt.title("Model Loss Over Epoch")
-    plt.xlabel('Epoch')s
+    plt.xlabel('Epoch')
     plt.ylabel('RMS Loss')
     plt.plot(range(len(losses)), losses, color='green')
 
