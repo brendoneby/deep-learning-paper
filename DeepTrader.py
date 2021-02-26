@@ -53,11 +53,11 @@ class DeepTrader_Model(nn.Module):
         x = F.relu(x)
         
         x = self.fc3(x)
-        # output = F.relu(x)
+        output = F.relu(x)
         
 
         # # Apply softmax to x
-        output = F.softmax(x, dim=1)
+        # output = F.softmax(x, dim=1)
         return output, states
 
     def generate_initial_states(self, batch_size=None, device=torch.device('cpu')):
