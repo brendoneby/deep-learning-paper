@@ -8,6 +8,7 @@ def train_deep_model():
     train(num_epochs, dataloader)
 
 def generate_data():
+<<<<<<< Updated upstream
     n_trials = 12
     all_configs = get_all_trader_configs()
     i = 0
@@ -15,6 +16,15 @@ def generate_data():
         i+=1
         print("trial", i)
         run_sessions(config, config, n_trials)
+=======
+    n_trials = 4
+    all_configs = get_all_trader_configs()
+    i = 0;
+    for config in all_configs:
+        print("trial", i)
+        run_sessions(config, config, n_trials)
+        i+=1
+>>>>>>> Stashed changes
 
 def run_experiment():
     #TODO: build
