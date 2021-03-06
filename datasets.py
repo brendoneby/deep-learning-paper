@@ -91,8 +91,6 @@ def parse_lobster_data(fn, output_fn):
         lob = getLobsterLob(lob_row, tape)
 
     norm_snapshots = noramlize_lobster_data(np.array(snapshots))
-    print(norm_snapshots)
-    print(norm_snapshots.shape)
     fout=open("data/lobster_snapshots"+output_fn+".csv","a")
     for snapshot in norm_snapshots:
         str_snapshot = [str(el) for el in snapshot]
