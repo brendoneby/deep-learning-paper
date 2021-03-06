@@ -37,7 +37,7 @@ def getSnapshot(lob, time, order=None, trade=None, cust_order=0, prev_trade_time
     microprice = 0 if (qa+qb) == 0 else ((pb*qa) + (pa*qb))/(qa+qb)
     p_star, s_alpha = calcPstar(lob['tape'])
 
-    if trade is not None: isAsk = 1 if pa == trade['price'] else 0  # 1 for ask, 0 for bid
+    if isAsk is None and trade is not None: isAsk = 1 if pa == trade['price'] else 0  # 1 for ask, 0 for bid
     if prev_trade_time is None: prev_trade_time = getLastTrade(lob)
 
     trade_price = trade['price'] if trade is not None else -1

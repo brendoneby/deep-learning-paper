@@ -29,7 +29,7 @@ def run_sessions(buyers_spec, sellers_spec, n_trials, recordSnapshots = True, ba
 
     while trial < (n_trials + 1):
         trial_id = 'sess%04d' % trial
-        dump_all = False
+        dump_all = True
 
         market_session(trial_id, start_time, end_time, traders_spec, order_sched, tdump, dump_all, verbose, total_dump)
         tdump.flush()

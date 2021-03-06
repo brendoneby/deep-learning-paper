@@ -6,6 +6,7 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset, DataLoader
 import sys
 from itertools import islice
+from helper_functions import getSnapshot
 
 # sys.path.append("/Users/davinci/NU_work/Advanced Deep/deep-learning-paper/")
 # print(sys.path)
@@ -18,6 +19,13 @@ def noramlize_training_data(data):
     # print(min_vals)
     norm_data = (data-min_vals)/(max_vals-min_vals)
     np.savetxt("data/snapshots_normalized.csv", norm_data, delimiter=",")
+
+def noramlize_lobster_data(data):
+    max_vals = np.max(data,axis=0)
+    min_vals = np.min(data,axis=0)
+    norm_data = (data-min_vals)/(max_vals-min_vals)
+    norm_data[:,2] = 0    #set customer price to 0, since we dont have that information in lobster
+    return norm_data
 
 # Only for Data preparation
 def merge_csv_files():
@@ -41,6 +49,85 @@ def load_data(path: str, type: str):
     # train = train[100000:]
     
     return train
+
+def parse_lobster_data(fn, output_fn):
+    print("loading data from "+fn)
+    messages = genfromtxt(fn+"_message_10.csv", delimiter=',')
+    orderbook = genfromtxt(fn+"_orderbook_10.csv", delimiter=',')
+    tape = []
+    snapshots = []
+    prev_trade_time = 0
+    lob = None
+    for i in range(len(messages)):
+        message = messages[i]
+        message_type = message[1]
+        if(message_type == 4 or message_type == 5):
+            time = message[0]
+            qty = message[3]
+            price = message[4]/10000
+            trade = {}
+            trade['time'] = time
+            trade['type'] = 'Trade'
+            trade['price'] = price
+            trade['qty'] = qty
+
+            isAsk = 1 if message[5] == 1 else 0
+
+            # lob_row = orderbook[i]
+            if lob is None: lob = getLobsterLob(orderbook[i], tape)
+
+            snapshot = getSnapshot(lob, time, trade=trade, prev_trade_time=prev_trade_time, isAsk=isAsk)
+            snapshots.append(list(snapshot))
+            # print(message)
+            # # print(lob_row)
+            # print(trade)
+            # print(lob)
+            # print(snapshot)
+
+            tape.append(trade)
+            prev_trade_time = time
+            # assert(False)
+        lob_row = orderbook[i]
+        lob = getLobsterLob(lob_row, tape)
+
+    norm_snapshots = noramlize_lobster_data(np.array(snapshots))
+    print(norm_snapshots)
+    print(norm_snapshots.shape)
+    fout=open("data/lobster_snapshots"+output_fn+".csv","a")
+    for snapshot in norm_snapshots:
+        str_snapshot = [str(el) for el in snapshot]
+        fout.write(",".join(str_snapshot)+"\n")
+    fout.close()
+    return snapshots
+
+
+def getLobsterLob(lob_row, tape):
+    lob = {}
+    lob['tape'] = tape
+    lob['bids'] = {}
+    lob['bids']['lob'] = []
+    lob['bids']['n'] = 0
+    lob['asks'] = {}
+    lob['asks']['lob'] = []
+    lob['asks']['n'] = 0
+    for i in range(0, len(lob_row), 4):
+        ask_price = lob_row[i] / 10000
+        ask_qty = lob_row[i + 1]
+        lob['asks']['lob'].append([ask_price, ask_qty])
+        lob['asks']['n'] += ask_qty
+
+        bid_price = lob_row[i + 2] / 10000
+        bid_qty = lob_row[i + 3]
+        lob['bids']['lob'].insert(0, [bid_price, bid_qty])
+        lob['bids']['n'] += bid_qty
+
+        if (i == 0):
+            lob['asks']['best'] = ask_price
+            lob['bids']['best'] = bid_price
+        if (i + 4 == len(lob_row)):
+            lob['asks']['worst'] = ask_price
+            lob['bids']['worst'] = bid_price
+    return lob
 
 class Sequence_Dataset():
     # def __init__(self, x:torch.LongTensor, y:torch.LongTensor):
@@ -123,3 +210,7 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
 # noramlize_training_data(data)
 
 # merge_csv_files()
+
+# fn = "/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10/JNJ_2019-12-31_34200000_57600000"
+# snapshots = parse_lobster_data(fn)
+# print(snapshots)
