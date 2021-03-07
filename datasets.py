@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import genfromtxt
 import torch
+import time
 from torch.functional import norm
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset, DataLoader
@@ -57,26 +58,26 @@ def parse_lobster_data(fn, output_fn):
     tape = []
     snapshots = []
     prev_trade_time = 0
-    lob = None
+    t0 = time.time()
     for i in range(len(messages)):
         message = messages[i]
         message_type = message[1]
         if(message_type == 4 or message_type == 5):
-            time = message[0]
+            trade_time = message[0]
             qty = message[3]
             price = message[4]/10000
             trade = {}
-            trade['time'] = time
+            trade['time'] = trade_time
             trade['type'] = 'Trade'
             trade['price'] = price
             trade['qty'] = qty
 
             isAsk = 1 if message[5] == 1 else 0
 
-            # lob_row = orderbook[i]
-            if lob is None: lob = getLobsterLob(orderbook[i], tape)
+            lob_index = max(0,i-1)
+            lob = getLobsterLob(orderbook[lob_index], tape)
 
-            snapshot = getSnapshot(lob, time, trade=trade, prev_trade_time=prev_trade_time, isAsk=isAsk)
+            snapshot = getSnapshot(lob, trade_time, trade=trade, prev_trade_time=prev_trade_time, isAsk=isAsk)
             snapshots.append(list(snapshot))
             # print(message)
             # # print(lob_row)
@@ -85,17 +86,22 @@ def parse_lobster_data(fn, output_fn):
             # print(snapshot)
 
             tape.append(trade)
-            prev_trade_time = time
+            prev_trade_time = trade_time
             # assert(False)
-        lob_row = orderbook[i]
-        lob = getLobsterLob(lob_row, tape)
+    t1 = time.time()
+    print("snapshots took: " + str(t1-t0))
 
+    print("normalizing...")
     norm_snapshots = noramlize_lobster_data(np.array(snapshots))
+    t2 = time.time()
+    print("normalizing took: " + str(t2-t1))
     fout=open("data/lobster_snapshots"+output_fn+".csv","a")
     for snapshot in norm_snapshots:
         str_snapshot = [str(el) for el in snapshot]
         fout.write(",".join(str_snapshot)+"\n")
     fout.close()
+    t3 = time.time()
+    print("writing took: " + str(t3-t2))
     return snapshots
 
 
@@ -209,6 +215,6 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
 
 # merge_csv_files()
 
-# fn = "/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10/JNJ_2019-12-31_34200000_57600000"
-# snapshots = parse_lobster_data(fn)
+fn = "/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10/JNJ_2019-12-31_34200000_57600000"
+snapshots = parse_lobster_data(fn, 'JNJ')
 # print(snapshots)
