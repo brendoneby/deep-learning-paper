@@ -102,7 +102,7 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
     loss_func = nn.MSELoss()
     losses = []
     counter = 0
-    number_of_batches = 734
+    number_of_batches = 845
     states = model.generate_initial_states(dataset.batch_size, device)
     with progressbar.ProgressBar(max_value = number_of_batches) as progress_bar:
         progress_bar.update(0)
@@ -126,7 +126,7 @@ def _train_epoch(model, dataset, optimizer, device=torch.device('cpu')):
             losses.append(loss.item())
 
             counter += 1
-            # progress_bar.update(counter)
+            progress_bar.update(counter)
     meanLoss = np.mean(losses)
     print("Loss:",meanLoss)
     return model, meanLoss
