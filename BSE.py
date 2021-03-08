@@ -1365,6 +1365,51 @@ class Trader_Deep(Trader):
             self.lastquote = order
         return order
 
+class Trader_RealDeep(Trader):
+
+    def __init__(self, ttype, tid, balance, time):
+        Trader.__init__(self, ttype, tid, balance, time)
+        self.model = loadDeepTrader_Model("realdeep_model.pt")
+
+    def getorder(self, time, countdown, lob):
+        if len(self.orders) < 1:
+            order = None
+        else:
+            otype = self.orders[0].otype
+            isAsk = 0 if otype == 'Bid' else 1
+            limit = self.orders[0].price
+            snapshot = getSnapshot(lob, time, cust_order=0, isAsk=isAsk)
+            snapshot = np.array(list(snapshot))
+            # print(snapshot)
+            snapshot = normalize(snapshot[:13])
+            # print(snapshot)
+            snapshot = torch.from_numpy(snapshot)
+            snapshot = snapshot.reshape(1, 1, snapshot.shape[0])
+            # print(snapshot)
+            states = self.model.detach_states()
+            norm_price,_ = self.model(snapshot.float(), states)
+            price = unnormalizePrice(norm_price.item())
+            # print("quoting:",price)
+            # print("limit:",limit)
+            # print("order type:",otype)
+            # assert(False)
+
+            if otype == "Ask":
+                if price < limit:
+                    # self.count[1] += 1
+                    price = limit
+            else:
+                if price > limit:
+                    # self.count[0] += 1
+                    price = limit
+
+            # print("actual quote:",price)
+            # print()
+
+            order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
+            self.lastquote = order
+        return order
+
 
 #########################---trader-types have all been defined now--################
 
@@ -1446,6 +1491,8 @@ def populate_market(traders_spec, traders, shuffle, verbose):
             return Trader_GDX('GDX', name, 0.00, 0)
         elif robottype == 'DEEP':
             return Trader_Deep('DEEP', name, 0.00, 0)
+        elif robottype == 'RDP':
+            return Trader_RealDeep('RDP', name, 0.00, 0)
         else:
             sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 

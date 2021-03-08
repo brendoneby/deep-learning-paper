@@ -47,16 +47,16 @@ def run_BGT(avail_traders = None):
     for opponent in avail_traders:
         balanced_group_test(trader, opponent)
 
-def run_tests(avail_traders = None):
-    trader = "DEEP"
+def run_tests(avail_traders = None, trader = "DEEP"):
     if avail_traders is None:
         avail_traders = get_avail_traders()
     for opponent in avail_traders:
         balanced_group_test(trader, opponent)
         one_in_many_test(trader, opponent)
 
-# run_tests(['AA','GDX','GVWY','ZIC','SHVR','SNPR','ZIP'])
+# run_tests(['AA','GVWY','ZIC','SHVR','SNPR','ZIP'])
+run_tests(['GDX','AA','GVWY','ZIC','SHVR','SNPR','ZIP'], 'RDP')
 
 # generate_bgt_plot("DEEP", "AA")
 # generate_data()
-process_lobster("/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10", "JNJ")
+# process_lobster("/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10", "JNJ")
