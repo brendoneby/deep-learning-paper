@@ -98,8 +98,8 @@ def run_sessions(buyers_spec, sellers_spec, n_trials, balance_file = 'avg_balanc
 
 For preprocessing we convert the data generated in the above step to the 14 numerical values and normalization process we need for training the model. The details for deriving the values are given in the paper.
 
-The preprocesssing functions for BSE data could be found in helper_functions.py file.
-The preprocesssing functions for BSE data could be found in datasets.py file.
+The preprocesssing functions for BSE and LOBESTER data could be found in datasets.py and helper_functions.py file.
+The tests we run on live market sessions uses functions from tests.py and helper_functions.py file.
 
 ## Implementation
 
