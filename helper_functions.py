@@ -25,9 +25,6 @@ def calcPstar(tape):
     return pstar, alpha
 
 def getSnapshot(lob, time, order=None, trade=None, cust_order=0, prev_trade_time=None, isAsk = None):
-    # print(lob)
-    # print(order)
-    # print(trade)
     pb = lob['bids']['worst'] if lob['bids']['best'] == None else lob['bids']['best'] # best bid
     qa = 0 if len(lob['asks']['lob']) == 0 else lob['asks']['lob'][0][1] # quantity for best ask
     pa = lob['asks']['worst'] if lob['asks']['best'] == None else lob['asks']['best'] # best ask

@@ -2,22 +2,14 @@ import numpy as np
 from numpy import genfromtxt
 import torch
 import time
-from torch.functional import norm
-from torch.nn.utils.rnn import pad_sequence
-from torch.utils.data import Dataset, DataLoader
-import sys
+from torch.utils.data import DataLoader
 from itertools import islice
 from helper_functions import getSnapshot
-
-# sys.path.append("/Users/davinci/NU_work/Advanced Deep/deep-learning-paper/")
-# print(sys.path)
 
 def noramlize_training_data(data):
     data[:,1] = np.sign(data[:,13] - data[:,6])
     max_vals = np.max(data,axis=0)
     min_vals = np.min(data,axis=0)
-    # print(max_vals)
-    # print(min_vals)
     norm_data = (data-min_vals)/(max_vals-min_vals)
     np.savetxt("data/snapshots_normalized.csv", norm_data, delimiter=",")
 
@@ -39,17 +31,7 @@ def merge_csv_files():
 
 
 def load_data(path: str, type: str):
-    """
-    read csv file
-    :param path:
-    :return:
-    """
-
-    train = genfromtxt(path, delimiter=',')
-    # val = train[:100000]
-    # train = train[100000:]
-    
-    return train
+    return genfromtxt(path, delimiter=',')
 
 def parse_lobster_data(fn, output_fn):
     print("loading data from "+fn)
@@ -79,15 +61,9 @@ def parse_lobster_data(fn, output_fn):
 
             snapshot = getSnapshot(lob, trade_time, trade=trade, prev_trade_time=prev_trade_time, isAsk=isAsk)
             snapshots.append(list(snapshot))
-            # print(message)
-            # # print(lob_row)
-            # print(trade)
-            # print(lob)
-            # print(snapshot)
 
             tape.append(trade)
             prev_trade_time = trade_time
-            # assert(False)
     t1 = time.time()
     print("snapshots took: " + str(t1-t0))
 
@@ -134,26 +110,13 @@ def getLobsterLob(lob_row, tape):
     return lob
 
 class Sequence_Dataset():
-    # def __init__(self, x:torch.LongTensor, y:torch.LongTensor):
     def __init__(self, fn, batch_size, device):
-        # self.x = x
-        # self.y = y
-        # self.len = x.shape[0]
         self.fn = fn
         self.infile = None
         self.reset_infile()
         self.batch_size = batch_size
         self.len = 10396317
         self.device = device
-        # self.len = 0
-        # with open(fn, 'r') as infile:
-        #     while True:
-        #         gen = islice(infile, batch_size)
-        #         # print(gen)
-        #         l = len(tuple(gen))
-        #         self.len += l
-        #         if l < batch_size:
-        #             break
         print("len:",self.len)
 
     def reset_infile(self):
@@ -161,11 +124,8 @@ class Sequence_Dataset():
         self.infile = open(self.fn, 'r')
 
     def getData(self):
-        # print("Loading batch ")
         gen = islice(self.infile, self.batch_size)
         data = np.genfromtxt(gen, delimiter=',')
-        # print(data.shape)
-        # print(data)
         if data.shape[0] < self.batch_size:
             self.reset_infile()
             return None, None
@@ -173,29 +133,10 @@ class Sequence_Dataset():
         inputs = inputs.reshape(1,inputs.shape[0],inputs.shape[1])
         targets = torch.tensor(data[:,13],dtype=torch.float, device=self.device)
         targets = targets.reshape(1,targets.shape[0],1)
-        # print(inputs)
-        # print(targets)
         return inputs, targets
 
     def __len__(self):
         return self.len
-
-# def build_dataloader(data:np.ndarray, batch_size:int) -> DataLoader:
-#     """
-#     :param data: input array of floats
-#     :param batch_size: hyper parameter, for mini-batch size
-#     :return: DataLoader for SGD
-#     """
-#
-#     # cut off any data that will create incomplete batches
-#     num_batches = data.shape[0] // batch_size
-#     data = data[:num_batches*batch_size]
-#     inputs = data[:,13]
-#     targets = data[:,:13]
-#
-#     # create Dataset object and from it create data loader
-#     dataset = Sequence_Dataset(x=inputs, y=targets)
-#     return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
 
 def build_dataloader(fn, batch_size, device) -> DataLoader:
     """
@@ -203,11 +144,8 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
     :param batch_size: hyper parameter, for mini-batch size
     :return: DataLoader for SGD
     """
-
-    # create Dataset object and from it create data loader
     dataset = Sequence_Dataset(fn, batch_size, device)
     return dataset
-    # return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
 # data = load_data("data/snapshots.csv", "train")
 # #
