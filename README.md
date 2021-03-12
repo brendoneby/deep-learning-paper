@@ -144,14 +144,14 @@ Here are example results against **AA**, one of the "super human" traders that h
 As you can see, the performance of DEEP was aproximately equal to that of AA in both tests.  It should be noted that the BGT test vs AA is one where the original paper under-performed.
 
 However, these are the results vs GDX, another of the high-performing traders in the BSE:\
-![OMT vs GDX](Test Results/DEEP/DEEP vs GDX OMT.png)
-![BGT vs GDX](Test Results/DEEP/DEEP vs GDX BGT.png)
+![OMT vs GDX](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20GDX%20OMT.png "DEEP vs GDX OMT")
+![BGT vs GDX](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20GDX%20BGT.png "DEEP vs GDX BGT")
 
 In the OMT test against GDX our model underperformed.  This was one of the tests in which the original paper outperformed the opponent trader.
 
 In other tests, DEEP clearly outperformed the opponent automated traders.  Here are the tests vs ZIP for example:\
-![OMT vs ZIP](Test Results/DEEP/DEEP vs ZIP OMT.png)
-![BGT vs ZIP](Test Results/DEEP/DEEP vs ZIP BGT.png)
+![OMT vs ZIP](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20ZIP%20OMT.png "DEEP vs ZIP OMT")
+![BGT vs ZIP](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20ZIP%20BGT.png "DEEP vs ZIP BGT")
 
 All results for DEEP can be found [here](./Test%20Results/DEEP).
 
@@ -160,8 +160,8 @@ So in the end, our model won or tied 13 out of 14 tests, which is the same numbe
 ##### Trader_RDT
 
 Performance of RDT was terrible.  Here is an example vs GVWY, one of the worst traders in the BSE:\
-![OMT vs ZIP](Test Results/DEEP/DEEP vs ZIP OMT.png)
-![BGT vs ZIP](Test Results/DEEP/DEEP vs ZIP BGT.png)
+![OMT vs GVWY](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/RDT%20vs%20GVWY%20OMT.png "RDT vs GVWY OMT")
+![BGT vs GVWY](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/RDT%20vs%20GVWY%20BGT.png "RDT vs GVWY BGT")
 
 All results for RDT can be found [here](./Test%20Results/RDT).
 
