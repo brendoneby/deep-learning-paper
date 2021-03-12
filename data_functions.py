@@ -72,7 +72,7 @@ def parse_test_file(file):
                 perf[trader].append(item[3])
     return perf
 
-def generate_box_plots(file, title):
+def generate_box_plots(file, title, filename):
     data = parse_test_file(file)
     fig = plt.figure()
     ax = fig.add_subplot()
@@ -80,6 +80,7 @@ def generate_box_plots(file, title):
     ax.boxplot(data.values(), whis=1.5)
     ax.set_xticklabels(data.keys())
     plt.show()
+    plt.savefig(filename)
 
 def one_in_many_test(traderOne, traderMany):
     test_type = "OMT"
@@ -94,7 +95,7 @@ def one_in_many_test(traderOne, traderMany):
 def generate_omt_plot(traderOne, traderMany):
     file = get_test_file("OMT", traderOne, traderMany)
     title = "One-in-many: "+traderOne + " vs " + traderMany
-    generate_box_plots(file, title)
+    generate_box_plots(file, title, f'/Test Results/{traderOne}/{traderOne} vs {traderMany} OMT.png')
 
 def balanced_group_test(traderOne, traderTwo):
     test_type = "BGT"
@@ -108,4 +109,4 @@ def balanced_group_test(traderOne, traderTwo):
 def generate_bgt_plot(traderOne, traderTwo):
     file = get_test_file("BGT", traderOne, traderTwo)
     title = "Balanced-group-test: "+traderOne + " vs " + traderTwo
-    generate_box_plots(file, title)
+    generate_box_plots(file, title, f'/Test Results/{traderOne}/{traderOne} vs {traderTwo} BGT.png')

@@ -32,7 +32,7 @@ In the following sections, we will discuss how we generated our training data, o
 
 ## Implementation
 
-![Architecture](src/DeepTrader.png)
+![Architecture](https://github.com/brendoneby/deep-learning-paper/blob/main/src/DeepTrader.png "Model Architecture")
 
 The model architecture consists of a Long Short Term Memory (LSTM) input layer of size 10, followed by 3 fully connected hiden layers of size 5, 3, and 1, respectively.  ReLU activation was used between every layer, as well as an Adam optimizer with an initial learning rate of 5.5e-5.  To start, we define the forward pass:
 
@@ -138,8 +138,8 @@ Two test types across 7 traders means a total of 14 tests were performed.
 In 13 of 14 tests DEEP outperformed the opponent trader types.  This matched the results found in the original paper.
 
 Here are example results against **AA**, one of the "super human" traders that has regularly out-performed human traders in market sessions:\
-![OMT vs AA](Test Results/DEEP/DEEP vs AA OMT.png)
-![BGT vs AA](Test Results/DEEP/DEEP vs AA BGT.png)
+![OMT vs AA](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20AA%20OMT.png "DEEP vs AA OMT")
+![BGT vs AA](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/DEEP/DEEP%20vs%20AA%20BGT.png "DEEP vs AA BGT")
 
 As you can see, the performance of DEEP was aproximately equal to that of AA in both tests.  It should be noted that the BGT test vs AA is one where the original paper under-performed.
 
@@ -188,5 +188,5 @@ It should be noted that this was done here learning from automated traders, whic
 
 Additionally we were not able to get good performance out of a trader trained on real world data, but as observed earlier this is likely because of the structural differences between the simulated market and the real market environments.
 
-Nevertheless, performance in this simulation has been strong enough to warrent further study into the efficacy of this approach in the real world.  If a model could be trained on the best performing traders in the actual market, a Deep Trader could learn implicit strategies that give it an edge over other automated methods.
+Nevertheless, performance in this simulation has been strong enough to warrent further study into the efficacy of this approach in the real world.  If a model could be trained on the best performing traders in the actual market, a Deep Trader could learn implicit strategies that could give it an edge over other automated methods.
 
