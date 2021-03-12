@@ -101,9 +101,11 @@ For preprocessing we convert the data generated in the above step to the 14 nume
 The preprocesssing functions for BSE and LOBESTER data could be found in datasets.py and helper_functions.py file.
 The tests we run on live market sessions uses functions from tests.py and helper_functions.py file.
 
-The final normalized snapshots we generate from BSE are made publicly available with this drive link.\
-https://drive.google.com/file/d/1ir1X41SW_PhjFbkz9yoRW__a8moCF7RX/view?usp=sharing.\
-The LOBSTER data we used is a paid dataset that we're not allowed to make public.\
+The final normalized snapshots we generate from BSE are made publicly available with this drive link.
+
+https://drive.google.com/file/d/1ir1X41SW_PhjFbkz9yoRW__a8moCF7RX/view?usp=sharing.
+
+The LOBSTER data we used is a paid dataset that we're not allowed to make public.
 
 ## Implementation
 
