@@ -146,13 +146,3 @@ def build_dataloader(fn, batch_size, device) -> DataLoader:
     """
     dataset = Sequence_Dataset(fn, batch_size, device)
     return dataset
-
-# data = load_data("data/snapshots.csv", "train")
-# #
-# noramlize_training_data(data)
-
-# merge_csv_files()
-
-# fn = "/Users/brendoneby/Downloads/_data_dwn_13_359__JNJ_2019-12-31_2020-12-31_10/JNJ_2019-12-31_34200000_57600000"
-# snapshots = parse_lobster_data(fn, 'JNJ')
-# print(snapshots)

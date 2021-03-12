@@ -78,3 +78,21 @@ def unnormalizePrice(price):
     minPrice = min_vals[-1]
     real_price = price * (maxPrice-minPrice) + minPrice
     return real_price
+
+def get_all_trader_configs():
+    avail_traders = get_avail_traders()
+    avail_configs = [(20, 10, 5, 5), (10, 10, 10, 10), (15, 10, 10, 5), (15, 15, 5, 5), (25, 5, 5, 5)]
+    trader_perms = set(itertools.combinations(avail_traders,4))
+    config_perms = set()
+    for config in avail_configs:
+        config_perms |= set(itertools.permutations(config))
+
+    perms = list()
+    for trader_set in trader_perms:
+        # if 'AA' not in trader_set and 'ZIP' not in trader_set: continue
+        for config_set in config_perms:
+            perms.append(list(zip(trader_set,config_set)))
+    return perms
+
+def get_avail_traders():
+    return ['AA','GDX', 'GVWY','ZIC','SHVR','SNPR','ZIP']

@@ -2,7 +2,9 @@ import sys
 import os
 from fnmatch import fnmatch
 from DeepTrader import *
-from data_functions import *
+from helper_functions import *
+from tests import *
+from sessions import *
 from datasets import *
 
 def train_deep_model():
