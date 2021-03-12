@@ -9,18 +9,18 @@ To run all 14 tests for a trained model, run the following command with a \<mode
 
 To generate snapshot data by running BSE simulations for all 1225 market configurations \<n> times:
 
-`python make.py generateData <n>`
+`python main.py generateData <n>`
 
 To normalize generated snapshot data from \<filepath>:
 
-`python make.py normalize <filepath>`
+`python main.py normalize <filepath>`
 
 To generate normalized snapshots from real-world lobster data for a file located at \<filepath>, with ticker symbol \<tkr>:
 
-`python make.py processLobster <filepath> <tkr>`
+`python main.py processLobster <filepath> <tkr>`
 
 Our colab model training notebook is located
-[here](https://colab.research.google.com/drive/1kkldIs1-KotjtKKA9-GPsJjdo6Ic7SdO#scrollTo=VdjOspdAaQHR).
+[here](https://colab.research.google.com/drive/1kkldIs1-KotjtKKA9-GPsJjdo6Ic7SdO?usp=sharing).
 
 
 ## Introduction
@@ -159,7 +159,7 @@ class DeepTrader_Model(nn.Module):
 
 ## Training
 
-Once we had our data process, we began training our model.  Training was done in colab to take advantage of GPU resources, and speed up the training process.  
+Once we had our data process, we began training our model.  Training was done in [colab](https://colab.research.google.com/drive/1kkldIs1-KotjtKKA9-GPsJjdo6Ic7SdO?usp=sharing) to take advantage of GPU resources, and speed up the training process.  
 
 We trained 2 models:
 1) **DeepTrader:**\
@@ -179,6 +179,44 @@ Here is the learning curve for RealDeepTrader:\
 Our trained models were then used by 2 additional trader classes that were created in the BSE: **Trader_DEEP**, based on the simulated data model, and **Trader_RDT**, based on the real-world data model.
 
 Whenever those traders receive a request for a quote from the BSE, they generate a snapshot of the LOB, normalize it, and run it through their model.  The output from that model is then de-normalized, and issued as a quote price.
+
+Here is the source for the Trader_DEEP agent for example:
+
+```python
+
+class Trader_Deep(Trader):
+
+    def __init__(self, ttype, tid, balance, time):
+        Trader.__init__(self, ttype, tid, balance, time)
+        self.model = loadDeepTrader_Model()
+
+    def getorder(self, time, countdown, lob):
+        if len(self.orders) < 1:
+            order = None
+        else:
+            otype = self.orders[0].otype
+            isAsk = 0 if otype == 'Bid' else 1
+            limit = self.orders[0].price
+            snapshot = getSnapshot(lob, time, cust_order=limit, isAsk=isAsk)
+            snapshot = np.array(list(snapshot))
+            snapshot = normalize(snapshot[:13])
+            snapshot = torch.from_numpy(snapshot)
+            snapshot = snapshot.reshape(1, 1, snapshot.shape[0])
+            states = self.model.detach_states()
+            norm_price,_ = self.model(snapshot.float(), states)
+            price = unnormalizePrice(norm_price.item())
+
+            if otype == "Ask":
+                if price < limit:
+                    price = limit
+            else:
+                if price > limit:
+                    price = limit
+
+            order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
+            self.lastquote = order
+        return order
+```
 
 ## Testing
 
@@ -232,7 +270,7 @@ So in the end, our model won or tied 13 out of 14 tests, which is the same numbe
 
 ##### Trader_RDT
 
-Performance of RDT was terrible.  Here is an example vs GVWY, one of the worst traders in the BSE:\
+Performance of RDT was not great, winning only 1 of the 14 tests, and clearly losing the others.  Here is an example vs GVWY, the worst trader in the BSE, and the only one RDT won against:\
 ![OMT vs GVWY](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/RDT%20vs%20GVWY%20OMT.png "RDT vs GVWY OMT")
 ![BGT vs GVWY](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/RDT%20vs%20GVWY%20BGT.png "RDT vs GVWY BGT")
 
