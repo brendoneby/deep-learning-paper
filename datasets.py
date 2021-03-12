@@ -2,7 +2,6 @@ import numpy as np
 from numpy import genfromtxt
 import torch
 import time
-from torch.utils.data import DataLoader
 from itertools import islice
 from helper_functions import getSnapshot
 
@@ -109,7 +108,7 @@ def getLobsterLob(lob_row, tape):
             lob['bids']['worst'] = bid_price
     return lob
 
-class Sequence_Dataset(DataLoader):
+class Sequence_Dataset():
     def __init__(self, fn, batch_size, device):
         self.fn = fn
         self.infile = None
@@ -138,7 +137,7 @@ class Sequence_Dataset(DataLoader):
     def __len__(self):
         return self.len
 
-def build_dataloader(fn, batch_size, device) -> DataLoader:
+def build_dataloader(fn, batch_size, device):
     """
     :param data: input array of floats
     :param batch_size: hyper parameter, for mini-batch size
