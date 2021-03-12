@@ -1479,8 +1479,8 @@ def populate_market(traders_spec, traders, shuffle, verbose):
             return Trader_GDX('GDX', name, 0.00, 0)
         elif robottype == 'DEEP':
             return Trader_Deep('DEEP', name, 0.00, 0)
-        elif robottype == 'RDP':
-            return Trader_RealDeep('RDP', name, 0.00, 0)
+        elif robottype == 'RDT':
+            return Trader_RealDeep('RDT', name, 0.00, 0)
         else:
             sys.exit('FATAL: don\'t know robot type %s\n' % robottype)
 
