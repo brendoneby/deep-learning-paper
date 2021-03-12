@@ -30,6 +30,77 @@ Using LOB2 data from simulated market sessions, we succesfully built and trained
 
 In the following sections, we will discuss how we generated our training data, our code implementation of the paper's methods, and our final results.
 
+## Generate data
+
+As we mention, BSE was used to generate and collect all of the data required to train the LSTM network for DeepTrader and then test its performance against existing trading strategies.
+
+To create a large dataset to train the model, many market-session configurations were devised where the proportions and types of traders were varied.
+
+### Genertaing configurations for BSE data
+We use a helper function to generate a list of all the possible configurations. In-depth explanation on generating configurations and selecting proportion groups are given in the paper. We use their methods and create 39,200 market sessions. Those sessions in total generate 14 million snapshots.
+
+Function get_avail_traders() just returns a list of names of algorithmic traders available. In this case, ['AA', 'GDX', 'GVWY', 'ZIC', 'SHVR', 'SNPR', 'ZIP']
+
+```sh
+def get_all_trader_configs():
+    avail_traders = get_avail_traders()
+    avail_configs = [(20, 10, 5, 5), (10, 10, 10, 10), (15, 10, 10, 5), (15, 15, 5, 5), (25, 5, 5, 5)]
+    trader_perms = set(itertools.combinations(avail_traders,4))
+    config_perms = set()
+    for config in avail_configs:
+        config_perms |= set(itertools.permutations(config))
+    perms = list()
+    for trader_set in trader_perms:
+        for config_set in config_perms:
+            perms.append(list(zip(trader_set,config_set)))
+    return perms
+```
+
+We then run all the market sessions to generate the LOB data. the dump_all flag is used to write all the LOB data to csv files.
+The market_session() function is used from BSE.py file. Its well-commented and pretty self explanatory.
+
+```sh
+def run_sessions(buyers_spec, sellers_spec, n_trials, balance_file = 'avg_balance.csv', total_file = 'total_balance.csv'):
+    # set up common parameters for all market sessions
+    start_time = 0.0
+    end_time = 600.0
+    duration = end_time - start_time
+
+    # The code below sets up symmetric supply and demand curves at prices from 50 to 150, P0=100
+    range1 = (50, 150)
+    supply_schedule = [{'from': start_time, 'to': end_time, 'ranges': [range1], 'stepmode': 'fixed'}]
+    range2 = (50, 150)
+    demand_schedule = [{'from': start_time, 'to': end_time, 'ranges': [range2], 'stepmode': 'fixed'}]
+
+    order_sched = {'sup': supply_schedule, 'dem': demand_schedule,
+                   'interval': 30, 'timemode': 'drip-poisson'}
+
+    traders_spec = {'sellers': sellers_spec, 'buyers': buyers_spec}
+
+    # run a sequence of trials, one session per trial
+    verbose = True
+    tdump = open(balance_file, 'w')
+    total_dump = open(total_file, 'w')
+    trial = 1
+
+    while trial < (n_trials + 1):
+        trial_id = 'sess%04d' % trial
+        dump_all = True
+
+        market_session(trial_id, start_time, end_time, traders_spec, order_sched, tdump, dump_all, verbose, total_dump)
+        tdump.flush()
+        trial = trial + 1
+
+    tdump.close()
+```
+
+### Preprocess
+
+For preprocessing we convert the data generated in the above step to the 14 numerical values and normalization process we need for training the model. The details for deriving the values are given in the paper.
+
+The preprocesssing functions for BSE data could be found in helper_functions.py file.
+The preprocesssing functions for BSE data could be found in datasets.py file.
+
 ## Implementation
 
 ![Architecture](https://github.com/brendoneby/deep-learning-paper/blob/main/src/DeepTrader.png "Model Architecture")
