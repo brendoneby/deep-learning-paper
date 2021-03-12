@@ -93,13 +93,13 @@ Once we had our data process, we began training our model.  Training was done in
 We trained 2 models:
 1) **DeepTrader:**\
 We trained this model using the normalized snapshots generated from our BSE simulations.  Training was done for 20 epochs, with a learning rate of 5.5e-5 (chosen after tuning) and a batch size size of 16,384.\
-Here is the learning curve for DeepTrader:
+Here is the learning curve for DeepTrader:\
 ![DEEP Learning Curve](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/Learning%20Curve.png "DEEP Learning Curve")
 
 
 2) **RealDeepTrader:**\
 This model was trained on the normalized snapshots generated from our real-world LOB data, from Johnson and Johnson, Goldman Sachs, and Walmart.  Training was done for 30 epochs also with a learning rate of 5.5e-5 and batch size of 16,384.\
-Here is the learning curve for RealDeepTrader:
+Here is the learning curve for RealDeepTrader:\
 ![RDT Learning Curve](https://github.com/brendoneby/deep-learning-paper/blob/main/Test%20Results/RDT/Learning%20Curve.png "RDT Learning Curve")
 
 
