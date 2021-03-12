@@ -1344,15 +1344,10 @@ class Trader_Deep(Trader):
 
             if otype == "Ask":
                 if price < limit:
-                    # self.count[1] += 1
                     price = limit
             else:
                 if price > limit:
-                    # self.count[0] += 1
                     price = limit
-
-            # print("actual quote:",price)
-            # print()
 
             order = Order(self.tid, self.orders[0].otype, price, self.orders[0].qty, time, lob['QID'])
             self.lastquote = order

@@ -67,5 +67,5 @@ if __name__ == "__main__":
 
     if function == 'test': run_tests(trader=arg1)
     if function == 'generateData': generate_data(n_trials=int(arg1))
-    if function == 'processLobster': process_lobster(folder_root=arg1, output_fn=arg2)
     if function == 'normalize': normalize_data(fn=arg1)
+    if function == 'processLobster': process_lobster(folder_root=arg1, output_fn=arg2)
