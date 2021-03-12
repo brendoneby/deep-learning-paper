@@ -109,7 +109,7 @@ def getLobsterLob(lob_row, tape):
             lob['bids']['worst'] = bid_price
     return lob
 
-class Sequence_Dataset():
+class Sequence_Dataset(DataLoader):
     def __init__(self, fn, batch_size, device):
         self.fn = fn
         self.infile = None

@@ -1,4 +1,3 @@
-import itertools
 import pandas
 import matplotlib.pyplot as plt
 from sessions import run_sessions
